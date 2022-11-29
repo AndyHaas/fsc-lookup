@@ -1,9 +1,9 @@
 <template>
     <c-fsc_combobox options={records} label={label} icon-size="small" public-class={publicClass} public-style={publicStyle} values={values}
         custom-search-handler={handleSearchChange} required={required} allow-multiselect={allowMultiselect}
-        is-loading={isLoading} exclude-sublabel-in-filter={includeSublabelInFilter}
-        include-value-in-filter={excludeValueInFilter} onchange={handleComboboxChange}
-        oncustomaction={handleCustomAction} debounce-delay={debounceDelay}>
+        is-loading={isLoading} exclude-sublabel-in-filter={includeSublabelInFilter} placeholder={placeholder} field-level-help={fieldLevelHelp}
+        include-value-in-filter={excludeValueInFilter} onchange={handleComboboxChange} right-icon={rightIconName} left-icon={leftIconName}
+        oncustomaction={handleCustomAction} debounce-delay={debounceDelay} no-match-string={noMatchString} message-when-value-missing={messageWhenValueMissing} >
     </c-fsc_combobox>
 
     <template if:true={showNewRecordModal}>

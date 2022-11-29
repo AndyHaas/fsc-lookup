@@ -26,6 +26,7 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
 
         @api label = 'Select Record';
         @api required;
+        @api messageWhenValueMissing = 'Please select a record';
         @api allowMultiselect;
         @api publicClass;
         @api publicStyle;
@@ -33,16 +34,28 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
         @api fieldsToSearch = '';
         @api fieldsToDisplay = '';
         @api iconName;
+        @api leftIconName = 'utility:search';
+        @api rightIconName = 'utility:down';
+        @api placeholder;
+        @api noMatchString = 'No matches found';
+        @api fieldLevelHelp;
         @api isLoading = false;
         @api showNewRecordAction = false;
         @api excludeSublabelInFilter = false;   // If true, the 'sublabel' text of an option is included when determining if an option is a match for a given search text.
         @api includeValueInFilter = false;  // If true, the 'value' text of an option is not included when determining if an option is a match for a given search text.
         @api whereClause; // Reserved for future use
         @api orderByClause; // Reserved for future use
+
         /* PRIVATE PROPERTIES */
         @track recentlyViewedRecords = [];
         @track records = [];
         showNewRecordModal;
+
+        /* OUTPUT PROPERTIES */
+        @api selectedRecordsOutput = [];
+        @api selectedRecordOutput;
+        @api numberOfRecordsOutput = 0;
+
         /* PUBLIC GETTERS AND SETTERS */
         @api
         get values() {
@@ -205,8 +218,12 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
         handleComboboxChange(event) {
             if (this.allowMultiselect) {
                 this.values = event.detail.values;
+                this.selectedRecordsOutput = event.detail.values;
+                this.numberOfRecordsOutput = event.detail.values.length ? event.detail.values.length : 0;
             } else {
                 this.value = event.detail.value;
+                this.selectedRecordOutput = event.detail.value;
+                this.numberOfRecordsOutput = event.detail.value ? 1 : 0;
             }
             this.dispatchRecords();
         }
