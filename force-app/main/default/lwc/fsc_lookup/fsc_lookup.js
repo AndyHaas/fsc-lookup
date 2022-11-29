@@ -1,4 +1,5 @@
 import { LightningElement, api, track, wire } from 'lwc';
+import { FlowAttributeChangeEvent } from 'lightning/flowSupport';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { getObjectInfo } from 'lightning/uiObjectInfoApi';
@@ -266,5 +267,8 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
             }
             console.log('about to dispatch, ' + JSON.stringify(detail));
             this.dispatchEvent(new CustomEvent('recordchange', { detail: detail }));
+            this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecordsOutput', this.selectedRecordsOutput));
+            this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecordOutput', this.selectedRecordOutput));
+            this.dispatchEvent(new FlowAttributeChangeEvent('numberOfRecordsOutput', this.numberOfRecordsOutput));
         }
 }
