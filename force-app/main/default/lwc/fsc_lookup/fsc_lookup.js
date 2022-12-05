@@ -219,12 +219,16 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
         handleComboboxChange(event) {
             if (this.allowMultiselect) {
                 this.values = event.detail.values;
+
+                // For each record that was selected map to Id and the value the value to the selectedRecordsOutput array
                 this.selectedRecordsOutput = event.detail.values;
                 this.numberOfRecordsOutput = event.detail.values.length ? event.detail.values.length : 0;
+                this.selectedRecordOutput = null;
             } else {
                 this.value = event.detail.value;
                 this.selectedRecordOutput = event.detail.value;
                 this.numberOfRecordsOutput = event.detail.value ? 1 : 0;
+                this.selectedRecordsOutput = null;
             }
             this.dispatchRecords();
         }
@@ -267,6 +271,10 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
             }
             console.log('about to dispatch, ' + JSON.stringify(detail));
             this.dispatchEvent(new CustomEvent('recordchange', { detail: detail }));
+
+            console.log('selectedRecordsOutput = ' + JSON.stringify(this.selectedRecordsOutput));
+            console.log('selectedRecordOutput = ' + JSON.stringify(this.selectedRecordOutput));
+            console.log('numberOfRecordsOutput = ' + this.numberOfRecordsOutput);
             this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecordsOutput', this.selectedRecordsOutput));
             this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecordOutput', this.selectedRecordOutput));
             this.dispatchEvent(new FlowAttributeChangeEvent('numberOfRecordsOutput', this.numberOfRecordsOutput));
