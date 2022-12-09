@@ -1,0 +1,297 @@
+<template>
+    <!-- Allow user to select from All objects or Standard and Custom -->
+    <lightning-combobox 
+        label="Object Type" 
+        value={inputValues.allowAllObjects.value} 
+        name="allowAllObjects"
+        placeholder="Standard and Custom"
+        options={objectTypes} 
+        onchange={handleValueChange}>
+    </lightning-combobox>
+
+    <!-- Get Object -->
+    <c-fsc_pick-object-and-field-3 
+        id="objectName"
+        object-label={inputValues.objectName.label}
+        field-label={inputValues.fieldsToDisplay.label}
+        object-type={inputValues.objectName.value}
+        hide-field-picklist=false
+        onfieldselected={handleObjectChange}
+        builder-context={_builderContext}
+        available-object-types={inputValues.allowAllObjects.value}
+        required
+    ></c-fsc_pick-object-and-field-3 >
+
+    <!-- Allow Users to type in the fields to Display -->
+    <lightning-input
+        type="checkbox"
+        label={inputValues.isManualEntryFieldsToDisplay.label}
+        name="isManualEntryFieldsToDisplay"
+        checked={inputValues.isManualEntryFieldsToDisplay.value}
+        onchange={handleValueChange}
+        field-level-help="If checked, you can enter the fields to display manually. Use this for Polymorphic Field. Polymorphic Field exmple is Owner.Name. If not checked, you can select the fields to display in the lookup."
+    ></lightning-input>
+
+    <template if:true={isManualEntry}>
+        <!-- Fields to Display Manual -->
+        <lightning-input
+            type="text"
+            label={inputValues.fieldsToDisplay.label}
+            name="fieldsToDisplay"
+            value={inputValues.fieldsToDisplay.value}
+            onchange={handleValueChange}
+            required
+            field-level-help="The fields to display in the lookup. Use the format: FieldName, FieldName. You can use up to 5 fields."
+        ></lightning-input>
+    </template>
+
+    <template if:false={isManualEntry}>
+        <!-- Fields to Display -->
+        <c-fsc_field-selector-3
+        id="fieldsToDisplay"
+        name="fieldsToDisplay"
+        object-name={inputValues.objectName.value}
+        label={inputValues.fieldsToDisplay.label}
+        selected-fields={inputValues.fieldsToDisplay.value}
+        required
+        allow-multiselect=true
+        onfieldupdate={handleValueChange}>
+        </c-fsc_field-selector-3>
+    </template>
+
+    <!-- Fields to Search -->
+    <c-fsc_field-selector-3
+        id="fieldsToSearch"
+        name="fieldsToSearch"
+        object-name={inputValues.objectName.value}
+        label={inputValues.fieldsToSearch.label}
+        selected-fields={inputValues.fieldsToSearch.value}
+        allow-multiselect=true
+        onfieldupdate={handleValueChange}>
+    </c-fsc_field-selector-3>
+
+    <!-- WHERE CLAUSE -->
+    <!-- Simple -->
+    <lightning-input
+        type="text"
+        label={inputValues.whereClause.label}
+        name="whereClause"
+        value={inputValues.whereClause.value}
+        onchange={handleValueChange}
+        field-level-help="The WHERE clause to use when querying for records. Use the format: FieldName = 'Value'. You can use AND and OR to combine multiple conditions. Do not include the WHERE keyword. "
+    ></lightning-input>
+
+    <!-- Advanced -->
+    <!-- Launch Flow and Open SOQL Query Builder When Returned parse out Everything RIGHT of WHERE-->
+
+    <!-- Label -->
+    <lightning-input
+        type="text"
+        label={inputValues.label.label}
+        name="label"
+        value={inputValues.label.value}
+        onchange={handleValueChange}
+        field-level-help="The label to display for the field."
+    ></lightning-input>
+    
+    <!-- Default Value -->
+    <lightning-input
+        type="text"
+        label={inputValues.defaultValueInput.label}
+        name="defaultValueInput"
+        value={inputValues.defaultValueInput.value}
+        onchange={handleValueChange}
+        field-level-help="The default value. Set this value in the format of a record ID."
+    ></lightning-input>
+
+    <!-- Message When Value Missing -->
+    <lightning-input
+        type="text"
+        label={inputValues.messageWhenValueMissing.label}
+        name="messageWhenValueMissing"
+        value={inputValues.messageWhenValueMissing.value}
+        onchange={handleValueChange}
+        field-level-help="The text to display when the user doesn't enter a value and the field is required."
+    ></lightning-input>
+
+
+    <!-- Field Level Help -->
+    <lightning-input
+        type="text"
+        label={inputValues.fieldLevelHelp.label}
+        name="fieldLevelHelp"
+        value={inputValues.fieldLevelHelp.value}
+        onchange={handleValueChange}
+        field-level-help="The text to display when the user hovers over the field-level-help icon."
+    ></lightning-input>
+
+    <!-- No Match String -->
+    <lightning-input
+        type="text"
+        label={inputValues.noMatchString.label}
+        name="noMatchString"
+        value={inputValues.noMatchString.value}
+        onchange={handleValueChange}
+        field-level-help="The text to display when the user enters a value that doesn't match any records."
+    ></lightning-input>
+
+    <!-- Placeholder -->
+    <lightning-input
+        type="text"
+        label={inputValues.placeholder.label}
+        name="placeholder"
+        value={inputValues.placeholder.value}
+        onchange={handleValueChange}
+        field-level-help="The text to display when the field is empty, to prompt the user for a valid entry."
+    ></lightning-input>
+
+    <!-- Show New Record Action -->
+    <lightning-input
+        type="checkbox"
+        label={inputValues.showNewRecordAction.label}
+        name="showNewRecordAction"
+        checked={inputValues.showNewRecordAction.value}
+        onchange={handleValueChange}
+        field-level-help="If checked, the user can create a new record from the lookup."
+    ></lightning-input>
+
+    <!-- Allow Multi Select -->
+    <lightning-input
+        type="checkbox"
+        label={inputValues.allowMultiselect.label}
+        name="allowMultiselect"
+        checked={inputValues.allowMultiselect.value}
+        onchange={handleValueChange}
+        field-level-help="If checked, the user can select multiple values."
+    ></lightning-input>
+
+    <!-- Required -->
+    <lightning-input
+        type="checkbox"
+        label={inputValues.required.label}
+        name="required"
+        checked={inputValues.required.value}
+        onchange={handleValueChange}
+        field-level-help="If checked, the user must select a value before they can proceed."
+    ></lightning-input>
+
+    <!-- Icon Name -->
+    <c-fsc_pick-icon
+        label={inputValues.iconName.label}
+        icon-name={inputValues.iconName.value}
+        mode="combobox"
+        oniconselection={handleIconChange}>
+    </c-fsc_pick-icon>
+
+    <!-- Left Icon -->
+    <c-fsc_pick-icon
+        label={inputValues.leftIconName.label}
+        icon-name={inputValues.leftIconName.value}
+        mode="combobox"
+        oniconselection={handleLeftIconChange}>
+    </c-fsc_pick-icon>
+
+    <!-- Right Icon -->
+    <c-fsc_pick-icon
+        label={inputValues.rightIconName.label}
+        icon-name={inputValues.rightIconName.value}
+        mode="combobox"
+        oniconselection={handleRightIconChange}>
+    </c-fsc_pick-icon>
+
+    <!-- If Multi Select False -->
+    <template if:true={isMultiSelect}>
+        <!-- If reactive screens work with this component for child/parent then we can remove any notion of parent/child fields here and in the lookup component ANDY -->
+        <!-- Parent or Child Lookup -->
+        <!-- <lightning-combobox
+            label={inputValues.parentOrChildLookup.label}
+            name="parentOrChildLookup"
+            value={inputValues.parentOrChildLookup.value}
+            options={parentOrChildLookupOptions}
+            onchange={handleValueChange}
+        ></lightning-combobox> -->
+
+        <!-- If parentOrChildLookup = Parent -->
+        <!-- <template if:false={showChildInputs}> -->
+            <!-- Component Name -->
+            <!-- <lightning-input
+                type="text"
+                label={inputValues.componentName.label}
+                name="componentName"
+                value={inputValues.componentName.value}
+                onchange={handleValueChange}
+            ></lightning-input> -->
+
+            <!-- Minimum Number of Selected Records -->
+            <lightning-input
+                type="number"
+                label={inputValues.minimumNumberOfSelectedRecords.label}
+                name="minimumNumberOfSelectedRecords"
+                value={inputValues.minimumNumberOfSelectedRecords.value}
+                onchange={handleValueChange}
+                field-level-help="This is the minimum number of records that must be selected. If you leave this field blank, there will be no minimum number of selected records.">
+            ></lightning-input>
+
+            <!-- Maximum Number of Selected Records -->
+            <lightning-input
+                type="number"
+                label={inputValues.maximumNumberOfSelectedRecords.label}
+                name="maximumNumberOfSelectedRecords"
+                value={inputValues.maximumNumberOfSelectedRecords.value}
+                onchange={handleValueChange}
+                field-level-help="This is the maximum number of records that can be selected. If you leave this field blank, there will be no maximum number of selected records.">
+            </lightning-input>
+
+            <!-- Minimum Number of Selected Records Message -->
+            <lightning-input
+                type="text"
+                label={inputValues.minimumNumberOfSelectedRecordsMessage.label}
+                name="minimumNumberOfSelectedRecordsMessage"
+                value={inputValues.minimumNumberOfSelectedRecordsMessage.value}
+                onchange={handleValueChange}
+                field-level-help="This is the message that will be displayed if the user selects less records than the minimum number of selected records. Use the {0} placeholder to display the minimum number of selected records. If you leave this field blank, the default message will be used."
+            ></lightning-input>
+
+            <!-- Maximum Number of Selected Records Message -->
+            <lightning-input
+                type="text"
+                label={inputValues.maximumNumberOfSelectedRecordsMessage.label}
+                name="maximumNumberOfSelectedRecordsMessage"
+                value={inputValues.maximumNumberOfSelectedRecordsMessage.value}
+                onchange={handleValueChange}
+                field-level-help="This is the message that will be displayed if the user selects more records than the maximum number of selected records. Use the {0} placeholder to display the maximum number of selected records. If you leave this field blank, the default message will be used."
+            ></lightning-input>
+        <!-- </template>  -->
+
+        <!-- If parentOrChildLookup = Child -->
+        <template if:true={showChildInputs}>
+            <!-- Child Relationship API Name -->
+            <c-fsc_field-selector-3
+                id="childRelationshipApiName"
+                name="fieldsToDisplay"
+                object-name={inputValues.objectName.value}
+                label={inputValues.childRelationshipApiName.label}
+                selected-fields={inputValues.childRelationshipApiName.value}
+                required
+                allow-multiselect=false
+                onfieldupdate={handleValueChange}>
+            </c-fsc_field-selector-3>
+
+            <!-- Parent Component API Name -->
+            <lightning-input
+                type="text"
+                label={inputValues.parentComponentApiName.label}
+                name="parentComponentApiName"
+                value={inputValues.parentComponentApiName.value}
+                onchange={handleValueChange}
+                required
+            ></lightning-input>
+        </template>
+
+
+
+
+    </template>
+
+
+</template>
