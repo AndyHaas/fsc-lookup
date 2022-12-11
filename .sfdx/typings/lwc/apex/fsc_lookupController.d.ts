@@ -7,3 +7,6 @@ declare module "@salesforce/apex/fsc_lookupController.getRecordsFromIds" {
 declare module "@salesforce/apex/fsc_lookupController.getRecentlyViewed" {
   export default function getRecentlyViewed(param: {objectName: any, fieldsToReturn: any, numRecordsToReturn: any, whereClause: any}): Promise<any>;
 }
+declare module "@salesforce/apex/fsc_lookupController.getObjectIcon" {
+  export default function getObjectIcon(param: {objectName: any}): Promise<any>;
+}
