@@ -304,7 +304,7 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
         getObjectIcon() {
             getObjectIcon({ objectName: this.objectName })
             .then(result => {
-                this._iconName = result;
+                this.iconName = result;
             });
         }
     
