@@ -274,7 +274,7 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
                     console.log('using recently viewed');
                     this.getRecentlyViewed();
                 }
-    
+                
                 // Set Custom Labels
                 // If the minimumNumberOfSelectedRecords is set, set the custom label)
                 if ( this.minimumNumberOfSelectedRecords !== 0 ) {
