@@ -274,7 +274,7 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
                     console.log('using recently viewed');
                     this.getRecentlyViewed();
                 }
-                
+
                 // Set Custom Labels
                 // If the minimumNumberOfSelectedRecords is set, set the custom label)
                 if ( this.minimumNumberOfSelectedRecords !== 0 ) {
@@ -381,32 +381,29 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
                     }
                     labelField = nonIdFields[0];
                     console.log('labelField = ' + labelField);
-                }
 
-                // Check if the label is a lookup field
-                if (labelField.includes('.')) {
-                    labelField = this.parseRelationshipFields(label,apexResults);
-                    console.log('labelField = ' + labelField);
-                }
-
-                // if displayFields is set, join the values and set as sublabel
-                if (displayFields && displayFields.length) {
-                    let sublabelValues = [];
-                    for (let sublabelField of displayFields) {
-                        console.log('sublabelField = ' + sublabelField);
-                        console.log('record = ' + JSON.stringify(record));
-                        console.log('record[sublabelField] = ' + record[sublabelField]);
-                        // Check if the sublabel is a lookup field
-                        if (sublabelField.includes('.')) {
-                            sublabelField = this.parseRelationshipFields(sublabelField,apexResults);
-                            console.log('sublabelField = ' + sublabelField)
-                        }
-                        if (record[sublabelField]) {
-                            sublabelValues.push(record[sublabelField]);
-                        }
+                    // Check if the label is a lookup field
+                    if (labelField.includes('.')) {
+                        labelField = this.parseRelationshipFields(label,record);
+                        console.log('labelField = ' + labelField);
                     }
-                    sublabel = sublabelValues.join(' • ');
                 }
+
+                // Go through the displayFields and build the sublabel
+                // If the field is a lookup, parse the relationship fields
+                if (displayFields) {
+                    console.log('displayFields = ' + displayFields);
+                    sublabel = displayFields.map(fieldName => {
+                        console.log('fieldName = ' + fieldName);
+                        if (fieldName.includes('.')) {
+                            return this.parseRelationshipFields(fieldName, record);
+                        } else {
+                            return record[fieldName];
+                        }
+                    }).join(' - ');
+                }
+                console.log('sublabel = ' + sublabel);
+
 
                 // if visibleFields_ToSearchNames is set, join the values and set as searchField
                 if (this.visibleFields_ToSearchNames) {
@@ -443,28 +440,28 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
 
         // Parse the relationship fields
         // Define the key fields for the relationship and remove them from the list of fields to return
-
-        parseRelationshipFields(fieldName, apexResults) {
+        parseRelationshipFields(fieldName, record) {
             console.log('in parseRelationshipFields for ' + fieldName);
+            // console.log('record = ' + JSON.stringify(record));
+            // fieldName is set like this Account.CreatedBy.FirstName
             let relationshipFields = fieldName.split('.');
-            let object = relationshipFields[0];
+            let objectName = relationshipFields[0];
             let relationshipField = relationshipFields[1];
-            let relationshipFieldLabel = relationshipFields[2];
-            let relationshipFieldValues = [];
-            let relationshipFieldKey = [];
-            let relationshipFieldKeyLabel = [];
-
-            // Get the key fields for the relationship
-            for (let i = 0; i < apexResults.length; i++) {
-                let record = apexResults[i];
-                let keyField = record[object + '.Id'];
-                let keyFieldLabel = record[object + '.' + relationshipFieldLabel];
-                relationshipFieldKey.push(keyField);
-                relationshipFieldKeyLabel.push(keyFieldLabel);
-            }
+            let field = relationshipFields[2];
+            // Value is set like this "CreatedBy":{"FirstName":"Andy","Id":"0055e000001mKpCAAU"}
+            // Set new object 
+            let relationshipObject = record[relationshipField];
+            // console.log('relationshipObject = ' + JSON.stringify(relationshipObject));
+            // "CreatedBy.FirstName":"Andy"
+            let keyFieldValue = relationshipObject[field];
+            // console.log('keyFieldValue = ' + keyFieldValue);
             
-            console.log('relationshipFieldKey = ' + JSON.stringify(relationshipFieldKey));
-            return relationshipFieldValues.join('');            
+            // Set New Key Field
+            let newKeyField = objectName + '.' + relationshipField + '.' + field;
+            // console.log('newKeyField = ' + newKeyField);
+
+            return keyFieldValue;
+            
         }
     
         handleComboboxChange(event) {
