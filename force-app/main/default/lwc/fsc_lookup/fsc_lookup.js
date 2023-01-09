@@ -66,8 +66,8 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
                 this.visibleFields_ToDisplayNames = JSON.parse(value).map(field => field.name).join();
                 this.fieldCollection_toDisplay = JSON.parse(value).map(field => field.name);
             }
-            console.log('this.fieldCollection_toDisplay: ' + JSON.stringify(this.fieldCollection_toDisplay));
-            console.log('this.visibleFields_ToDisplayNames: ' + JSON.stringify(this.visibleFields_ToDisplayNames));
+            console.log('set this.fieldCollection_toDisplay: ' + JSON.stringify(this.fieldCollection_toDisplay));
+            console.log('set this.visibleFields_ToDisplayNames: ' + JSON.stringify(this.visibleFields_ToDisplayNames));
         }
         @track _fieldsToDisplay;
         @api visibleFields_ToDisplayNames;
@@ -257,43 +257,37 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
         connectedCallback() {
             console.log('in lookup connectedcallback');
             // Get the object's icon from getObjectIcon and set iconName
-            this.getObjectIcon();
-
-            // If defaultValueInput is set, we want to ignore the values passed in and set the default value
-            if ( this.defaultValueInput ) {
-                console.log('using default value input');
-                this.values = this.defaultValueInput;
-            // Else if whereClause is set, we want to ignore the values passed in and set the whereClause
-            } else if ( this.whereClause ) {
-                console.log('using where clause');
-                this.getRecords();
-            // Else get the recently viewed records
-            } else {
-                console.log('using recently viewed');
-                this.getRecentlyViewed();
-            }
-
-            // Set Custom Labels
-            // If the minimumNumberOfSelectedRecords is set, set the custom label)
-            if ( this.minimumNumberOfSelectedRecords !== 0 ) {
-                this._showMinimumNumberOfSelectedRecordsMessage = true;
-                this._minimumNumberOfSelectedRecordsMessage = this.minimumNumberOfSelectedRecordsMessage.replace('{0}', this.minimumNumberOfSelectedRecords);
-            }
-            // If the maximumNumberOfSelectedRecords is set, set the custom label
-            console.log('this.maximumNumberOfSelectedRecords = ' + this.maximumNumberOfSelectedRecords);
-            if ( this.maximumNumberOfSelectedRecords !== 0 ) {
-                this._showMaximumNumberOfSelectedRecordsMessage = true;
-                this._maximumNumberOfSelectedRecordsMessage = this.maximumNumberOfSelectedRecordsMessage.replace('{0}', this.maximumNumberOfSelectedRecords);
-                console.log('this._maximumNumberOfSelectedRecordsMessage = ' + this._maximumNumberOfSelectedRecordsMessage);
-            }
-        }
-
-
-        // Get the object's icon from getObjectIcon and set iconName
-        getObjectIcon() {
             getObjectIcon({ objectName: this.objectName })
             .then(result => {
                 this.iconName = result;
+
+                // If defaultValueInput is set, we want to ignore the values passed in and set the default value
+                if ( this.defaultValueInput ) {
+                    console.log('using default value input');
+                    this.values = this.defaultValueInput;
+                // Else if whereClause is set, we want to ignore the values passed in and set the whereClause
+                } else if ( this.whereClause ) {
+                    console.log('using where clause');
+                    this.getRecords();
+                // Else get the recently viewed records
+                } else {
+                    console.log('using recently viewed');
+                    this.getRecentlyViewed();
+                }
+    
+                // Set Custom Labels
+                // If the minimumNumberOfSelectedRecords is set, set the custom label)
+                if ( this.minimumNumberOfSelectedRecords !== 0 ) {
+                    this._showMinimumNumberOfSelectedRecordsMessage = true;
+                    this._minimumNumberOfSelectedRecordsMessage = this.minimumNumberOfSelectedRecordsMessage.replace('{0}', this.minimumNumberOfSelectedRecords);
+                }
+                // If the maximumNumberOfSelectedRecords is set, set the custom label
+                console.log('this.maximumNumberOfSelectedRecords = ' + this.maximumNumberOfSelectedRecords);
+                if ( this.maximumNumberOfSelectedRecords !== 0 ) {
+                    this._showMaximumNumberOfSelectedRecordsMessage = true;
+                    this._maximumNumberOfSelectedRecordsMessage = this.maximumNumberOfSelectedRecordsMessage.replace('{0}', this.maximumNumberOfSelectedRecords);
+                    console.log('this._maximumNumberOfSelectedRecordsMessage = ' + this._maximumNumberOfSelectedRecordsMessage);
+                }
             });
         }
     
@@ -369,30 +363,13 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
         parseFields(apexResults) {
             let displayFields, labelField, sublabel, searchValue;
             if (this.visibleFields_ToDisplayNames) {
+                console.log('parseFields this.visibleFields_ToDisplayNames = ' + this.visibleFields_ToDisplayNames)
                 displayFields = this.visibleFields_ToDisplayNames.split(',');
                 labelField = displayFields.splice(0, 1);
             }
 
             console.log('Start labelField = ' + labelField);
 
-            // If labelField contains a dot, it's a relationship field
-            // Parse the value from the object and use the relationship name
-            if (labelField && labelField.toString().indexOf('.') !== -1) {
-                let labelString = labelField.toString();
-                let relationshipName = labelString.split('.')[0];
-
-                labelString = labelString.split('.')[1];
-                console.log('relationshipName = ' + relationshipName);
-                console.log('labelField = ' + labelString);
-                apexResults = apexResults.map(record => {
-                    console.log('record = ' + JSON.stringify(record));
-                    record[relationshipName] = record[relationshipName][labelString];
-                    console.log('record = ' + JSON.stringify(record));
-                    return record;
-                });
-                // Set the labelField to the value of the relationship field
-                labelField = relationshipName;
-            }
 
             return apexResults.map(record => {
                 if (!labelField) {
@@ -406,10 +383,24 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
                     console.log('labelField = ' + labelField);
                 }
 
+                // Check if the label is a lookup field
+                if (labelField.includes('.')) {
+                    labelField = this.parseRelationshipFields(label,apexResults);
+                    console.log('labelField = ' + labelField);
+                }
+
                 // if displayFields is set, join the values and set as sublabel
                 if (displayFields && displayFields.length) {
                     let sublabelValues = [];
                     for (let sublabelField of displayFields) {
+                        console.log('sublabelField = ' + sublabelField);
+                        console.log('record = ' + JSON.stringify(record));
+                        console.log('record[sublabelField] = ' + record[sublabelField]);
+                        // Check if the sublabel is a lookup field
+                        if (sublabelField.includes('.')) {
+                            sublabelField = this.parseRelationshipFields(sublabelField,apexResults);
+                            console.log('sublabelField = ' + sublabelField)
+                        }
                         if (record[sublabelField]) {
                             sublabelValues.push(record[sublabelField]);
                         }
@@ -448,6 +439,32 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
             if (this.showNewRecordAction) {
                 this.records.unshift(ACTIONS.NEW_RECORD);
             }
+        }
+
+        // Parse the relationship fields
+        // Define the key fields for the relationship and remove them from the list of fields to return
+
+        parseRelationshipFields(fieldName, apexResults) {
+            console.log('in parseRelationshipFields for ' + fieldName);
+            let relationshipFields = fieldName.split('.');
+            let object = relationshipFields[0];
+            let relationshipField = relationshipFields[1];
+            let relationshipFieldLabel = relationshipFields[2];
+            let relationshipFieldValues = [];
+            let relationshipFieldKey = [];
+            let relationshipFieldKeyLabel = [];
+
+            // Get the key fields for the relationship
+            for (let i = 0; i < apexResults.length; i++) {
+                let record = apexResults[i];
+                let keyField = record[object + '.Id'];
+                let keyFieldLabel = record[object + '.' + relationshipFieldLabel];
+                relationshipFieldKey.push(keyField);
+                relationshipFieldKeyLabel.push(keyFieldLabel);
+            }
+            
+            console.log('relationshipFieldKey = ' + JSON.stringify(relationshipFieldKey));
+            return relationshipFieldValues.join('');            
         }
     
         handleComboboxChange(event) {
