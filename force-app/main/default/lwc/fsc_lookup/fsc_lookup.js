@@ -445,7 +445,6 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
             // console.log('record = ' + JSON.stringify(record));
             // fieldName is set like this Account.CreatedBy.FirstName
             let relationshipFields = fieldName.split('.');
-            let objectName = relationshipFields[0];
             let relationshipField = relationshipFields[1];
             let field = relationshipFields[2];
             // Value is set like this "CreatedBy":{"FirstName":"Andy","Id":"0055e000001mKpCAAU"}
@@ -455,10 +454,6 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
             // "CreatedBy.FirstName":"Andy"
             let keyFieldValue = relationshipObject[field];
             // console.log('keyFieldValue = ' + keyFieldValue);
-            
-            // Set New Key Field
-            let newKeyField = objectName + '.' + relationshipField + '.' + field;
-            // console.log('newKeyField = ' + newKeyField);
 
             return keyFieldValue;
             
