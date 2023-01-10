@@ -122,98 +122,29 @@ export default class Fsc_lookupCPE extends LightningElement {
     // These are values coming back from the Wizard Flow
     handleFlowStatusChange(event) {
         console.log('=== handleFlowStatusChange ===');
-        if(event.detail.status === "FINISHED") {
+
+        // Used for Lightning Flow
+        // if(event.detail.status === "FINISHED") {
+        //     // Close Modal
+        //     this.closeModal();
+        //     // Get the output variables from the flow
+        //     let outputVariables = event.detail.outputVariables;
+        //     console.log('outputVariables', JSON.stringify(outputVariables));
+        // }
+
+        // Used for LWC
+
+        // Used for USF Flow
+        if (event.detail.flowStatus === "FINISHED") {
             // Close Modal
             this.closeModal();
-            // Get the output variables from the flow
-            let outputVariables = event.detail.outputVariables;
-            console.log('outputVariables', outputVariables);
-        }
-
-        if (event.detail.status == "ERROR") { 
-            console.log('Flow Error: ',JSON.stringify(event));
-        } else {      
-            this.isFlowLoaded = true;
-            event.detail.outputVariables.forEach(attribute => {
+            event.detail.flowParams.forEach(attribute => {
                 let name = attribute.name;
                 let value = attribute.value; 
                 console.log('Output from Wizard Flow: ', name, value);
-
-                if (name == 'vSelectionMethod') { 
-                    this.vSelectionMethod = value;
-                    this.updateFlowParam(name, value, '');
-                    this.isNextDisabled = (value) ? false : true;
-                }
-
-                if (name == 'vFieldList' && value) { 
-                    // Save Selected Fields & Create Collection
-                    this.vFieldList = value.split(' ').join('');  //Remove all spaces  
-                    this.updateFlowParam(name, value, null, defaults.NOENCODE);
-                    this.createFieldCollection(this.vFieldList);
-                }
-
-                if (name == 'vEarlyExit') { 
-                    // Determine which screen the user exited on
-                    this.isEarlyExit = value;
-                }
-
-                if (name.substring(0,defaults.wizardAttributePrefix.length) == defaults.wizardAttributePrefix) {
-                    let changedAttribute = name.replace(defaults.wizardAttributePrefix, '');                
-                    if (event.detail.flowExit && !this.isEarlyExit) { 
-                        // Update the wizard variables to force passing the changed values back to the CPE which will then post to the Flow Builder
-                        // switch (changedAttribute) { 
-                        //     case 'columnFields':
-                        //         this.wiz_columnFields = value;
-                        //         break;
-                        //     case 'columnAlignments':
-                        //         this.wiz_columnAlignments = value;
-                        //         break;
-                        //     case 'columnEdits':
-                        //         this.wiz_columnEdits = value;
-                        //         this.isNoEdits = (value) ? false : true;
-                        //         this.dispatchFlowValueChangeEvent('isRequired', false, 'boolean');
-                        //         if (this.isNoEdits) {
-                        //             this.updateCheckboxValue('suppressBottomBar', false);
-                        //             this.updateCheckboxValue('navigateNextOnSave', false);
-                        //             this.isDisableSuppressBottomBar = true;
-                        //             this.isDisableNavigateNext = true;
-                        //         }
-                        //         break;
-                        //     case 'columnFilters':
-                        //         this.wiz_columnFilters = value;
-                        //         this.isNoFilters = (value) ? false : true;
-                        //         if (this.isNoFilters) {
-                        //             this.updateCheckboxValue('matchCaseOnFilters', false);
-                        //         }
-                        //         break;
-                        //     case 'columnIcons':
-                        //         this.wiz_columnIcons = value;
-                        //         break;
-                        //     case 'columnLabels':
-                        //         this.wiz_columnLabels = value;
-                        //         break;
-                        //     case 'columnWidths':
-                        //         this.wiz_columnWidths = value;
-                        //         break;
-                        //     case 'columnWraps':
-                        //         this.wiz_columnWraps = value;
-                        //         break;
-                        //     case 'columnCellAttribs': 
-                        //         this.wiz_columnCellAttribs = value;
-                        //         break;
-                        //     case 'columnTypeAttribs': 
-                        //         this.wiz_columnTypeAttribs = value;
-                        //         break;
-                        //     case 'columnOtherAttribs': 
-                        //         this.wiz_columnOtherAttribs = value;
-                        //         break;                                
-                        //     default:
-                        // }
-                        this.isFlowLoaded = false;
-                    }
-                }
             });
         }
+
     }
 
     get wizardParams() {
