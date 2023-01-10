@@ -12,6 +12,11 @@ const FLOW_EVENT_TYPE = {
     CHANGE: 'configuration_editor_input_value_changed'
 }
 
+const defaults = {
+    wizardAttributePrefix: 'wiz_',
+    NOENCODE: true
+};
+
 const VALIDATEABLE_INPUTS = ['objectName', 'fieldsToDisplay'];
 
 
@@ -24,6 +29,18 @@ export default class Fsc_lookupCPE extends LightningElement {
     showChildInputs = false;
     isMultiSelect = false;
     isManualEntry = false;
+    isFlowLoaded = false;
+
+    //don't forget to credit https://www.salesforcepoint.com/2020/07/LWC-modal-popup-example-code.html
+    @track openModal = false;
+
+    showModal() {
+        this.openModal = true;
+    }
+
+    closeModal() {
+        this.openModal = false;
+    }
 
     @track inputValues = {
         objectName: {value: null, valueDataType: null, isCollection: false, label: 'Lookup which Object?', required: true, errorMessage: 'Please select an object'},
@@ -78,6 +95,120 @@ export default class Fsc_lookupCPE extends LightningElement {
             {label: 'Standard and Custom', value: ''},
             {label: 'All', value: 'All'},
         ];
+    }
+
+    // Input attributes for the Wizard Flow
+    @api flowParams = [
+        {name: 'objectName', type: 'String', value: null}
+    ]
+
+    updateFlowParam(name, value, ifEmpty=null, noEncode=false) {  
+        // Set parameter values to pass to Wizard Flow
+        console.log('updateFlowParam:', name, value);        
+        let currentValue = this.flowParams.find(param => param.name === name).value;
+        if (value != currentValue) {
+            if (noEncode) {
+                this.flowParams.find(param => param.name === name).value = value || ifEmpty;
+            } else { 
+                this.flowParams.find(param => param.name === name).value = (value) ? encodeURIComponent(value) : ifEmpty;
+            }
+        }
+    }
+
+    // These are values coming back from the Wizard Flow
+    handleFlowStatusChange(event) {
+        console.log('=== handleFlowStatusChange ===');
+        if (event.detail.flowStatus == "ERROR") { 
+            console.log('Flow Error: ',JSON.stringify(event));
+        } else {      
+            this.isFlowLoaded = true;
+            event.detail.flowParams.forEach(attribute => {
+                let name = attribute.name;
+                let value = attribute.value; 
+                console.log('Output from Wizard Flow: ', name, value);
+
+                if (name == 'vSelectionMethod') { 
+                    this.vSelectionMethod = value;
+                    this.updateFlowParam(name, value, '');
+                    this.isNextDisabled = (value) ? false : true;
+                }
+
+                if (name == 'vFieldList' && value) { 
+                    // Save Selected Fields & Create Collection
+                    this.vFieldList = value.split(' ').join('');  //Remove all spaces  
+                    this.updateFlowParam(name, value, null, defaults.NOENCODE);
+                    this.createFieldCollection(this.vFieldList);
+                }
+
+                if (name == 'vEarlyExit') { 
+                    // Determine which screen the user exited on
+                    this.isEarlyExit = value;
+                }
+
+                if (name.substring(0,defaults.wizardAttributePrefix.length) == defaults.wizardAttributePrefix) {
+                    let changedAttribute = name.replace(defaults.wizardAttributePrefix, '');                
+                    if (event.detail.flowExit && !this.isEarlyExit) { 
+                        // Update the wizard variables to force passing the changed values back to the CPE which will then post to the Flow Builder
+                        // switch (changedAttribute) { 
+                        //     case 'columnFields':
+                        //         this.wiz_columnFields = value;
+                        //         break;
+                        //     case 'columnAlignments':
+                        //         this.wiz_columnAlignments = value;
+                        //         break;
+                        //     case 'columnEdits':
+                        //         this.wiz_columnEdits = value;
+                        //         this.isNoEdits = (value) ? false : true;
+                        //         this.dispatchFlowValueChangeEvent('isRequired', false, 'boolean');
+                        //         if (this.isNoEdits) {
+                        //             this.updateCheckboxValue('suppressBottomBar', false);
+                        //             this.updateCheckboxValue('navigateNextOnSave', false);
+                        //             this.isDisableSuppressBottomBar = true;
+                        //             this.isDisableNavigateNext = true;
+                        //         }
+                        //         break;
+                        //     case 'columnFilters':
+                        //         this.wiz_columnFilters = value;
+                        //         this.isNoFilters = (value) ? false : true;
+                        //         if (this.isNoFilters) {
+                        //             this.updateCheckboxValue('matchCaseOnFilters', false);
+                        //         }
+                        //         break;
+                        //     case 'columnIcons':
+                        //         this.wiz_columnIcons = value;
+                        //         break;
+                        //     case 'columnLabels':
+                        //         this.wiz_columnLabels = value;
+                        //         break;
+                        //     case 'columnWidths':
+                        //         this.wiz_columnWidths = value;
+                        //         break;
+                        //     case 'columnWraps':
+                        //         this.wiz_columnWraps = value;
+                        //         break;
+                        //     case 'columnCellAttribs': 
+                        //         this.wiz_columnCellAttribs = value;
+                        //         break;
+                        //     case 'columnTypeAttribs': 
+                        //         this.wiz_columnTypeAttribs = value;
+                        //         break;
+                        //     case 'columnOtherAttribs': 
+                        //         this.wiz_columnOtherAttribs = value;
+                        //         break;                                
+                        //     default:
+                        // }
+                        this.isFlowLoaded = false;
+                    }
+                }
+            });
+        }
+    }
+
+    get wizardParams() {
+        // Parameter value string to pass to Wizard Flow
+        this.updateFlowParam('objectName', this.inputValues.objectName.value);
+        console.log('this.flowParams: ', JSON.stringify(this.flowParams));
+        return this.flowParams;
     }
 
     @api validate() {

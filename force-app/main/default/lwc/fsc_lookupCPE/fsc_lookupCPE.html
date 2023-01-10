@@ -49,6 +49,48 @@
 
     <!-- Advanced -->
     <!-- Launch Flow and Open SOQL Query Builder When Returned parse out Everything RIGHT of WHERE-->
+    <div class="slds-m-top_small">
+        <lightning-button label="Advance Filter" icon-name="utility:lightning_extension" onclick={showModal}></lightning-button>
+    </div>
+    <template if:true={openModal}>
+        <div class="slds-modal slds-modal_large slds-fade-in-open slds-backdrop">
+            <div class="slds-modal__container">
+
+                <!-- Header Section -->
+                <div class="slds-modal__header">
+                    <lightning-button-icon icon-name="utility:close"
+                        alternative-text="Close this window" size="large" variant="bare-inverse"
+                        onclick={closeModal} class="slds-modal__close">
+                    </lightning-button-icon>
+                    <div if:false={isFlowLoaded}>
+                        <h1 class="slds-modal__title slds-hyphenate">Please Wait... Loading Advance Filter Criteria</h1>
+                    </div>
+                    <div if:true={isFlowLoaded}>
+                        <h2 class="slds-modal__title slds-hyphenate">Configure Advance Filter Criteria</h2>
+                    </div>
+                </div>
+
+                <!-- Body Section -->
+                <div class="slds-modal__content slds-p-around_medium">
+                    <!-- <div if:false={isFlowLoaded}>
+                        <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+                    </div> -->
+                    <!-- <lightning-flow
+                        flow-api-name='Advance_Filter_Criteria_for_Lookup_Component'
+                        flow-input-variables={wizardParams}
+                        onstatuschange={handleFlowStatusChange}
+                    >
+                    </lightning-flow> -->
+                    <c-fsc_screen-flow width="100%" height={wizardHeight}
+                        flow-name="Advance_Filter_Criteria_for_Lookup_Component" name="uniqueName"
+                        flow-params={wizardParams}
+                        onflowstatuschange={handleFlowStatusChange}>
+                    </c-fsc_screen-flow>
+                </div>
+
+            </div>
+        </div>
+    </template>
 
     <!-- Label -->
     <c-fsc_flow-combobox 
