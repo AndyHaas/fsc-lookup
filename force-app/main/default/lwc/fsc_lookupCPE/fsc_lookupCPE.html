@@ -75,17 +75,25 @@
                     <!-- <div if:false={isFlowLoaded}>
                         <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
                     </div> -->
-                    <!-- <lightning-flow
+
+                    <!-- Access the flow using the OOB flow launcher -->
+                    <lightning-flow
                         flow-api-name='Advance_Filter_Criteria_for_Lookup_Component'
                         flow-input-variables={wizardParams}
                         onstatuschange={handleFlowStatusChange}
                     >
-                    </lightning-flow> -->
-                    <c-fsc_screen-flow width="100%" height={wizardHeight}
+                    </lightning-flow>
+
+                    <!-- Access the flow through USF -->
+                    <!-- <c-fsc_screen-flow width="100%" height={wizardHeight}
                         flow-name="Advance_Filter_Criteria_for_Lookup_Component" name="uniqueName"
                         flow-params={wizardParams}
                         onflowstatuschange={handleFlowStatusChange}>
-                    </c-fsc_screen-flow>
+                    </c-fsc_screen-flow> -->
+
+                    <!-- Access the LWC Directly -->
+                    <!-- <c-soql-query-builder
+                    ></c-soql-query-builder> -->
                 </div>
 
             </div>

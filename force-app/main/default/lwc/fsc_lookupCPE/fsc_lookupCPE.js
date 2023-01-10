@@ -102,6 +102,10 @@ export default class Fsc_lookupCPE extends LightningElement {
         {name: 'objectName', type: 'String', value: null}
     ]
 
+    onquerychange(event) {
+        console.log('onquerychange', event.detail);
+    }
+
     updateFlowParam(name, value, ifEmpty=null, noEncode=false) {  
         // Set parameter values to pass to Wizard Flow
         console.log('updateFlowParam:', name, value);        
@@ -118,11 +122,19 @@ export default class Fsc_lookupCPE extends LightningElement {
     // These are values coming back from the Wizard Flow
     handleFlowStatusChange(event) {
         console.log('=== handleFlowStatusChange ===');
-        if (event.detail.flowStatus == "ERROR") { 
+        if(event.detail.status === "FINISHED") {
+            // Close Modal
+            this.closeModal();
+            // Get the output variables from the flow
+            let outputVariables = event.detail.outputVariables;
+            console.log('outputVariables', outputVariables);
+        }
+
+        if (event.detail.status == "ERROR") { 
             console.log('Flow Error: ',JSON.stringify(event));
         } else {      
             this.isFlowLoaded = true;
-            event.detail.flowParams.forEach(attribute => {
+            event.detail.outputVariables.forEach(attribute => {
                 let name = attribute.name;
                 let value = attribute.value; 
                 console.log('Output from Wizard Flow: ', name, value);
