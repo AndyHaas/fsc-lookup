@@ -25,10 +25,10 @@ export default class Fsc_lookupCPE extends LightningElement {
     _builderContext = {};
     _values = [];
     _typeMappings = [];
+    _query = '';
 
     showChildInputs = false;
     isMultiSelect = false;
-    isManualEntry = false;
     isFlowLoaded = false;
 
     //don't forget to credit https://www.salesforcepoint.com/2020/07/LWC-modal-popup-example-code.html
@@ -59,10 +59,10 @@ export default class Fsc_lookupCPE extends LightningElement {
         noMatchString: {value: 'Nothing Found', valueDataType: null, isCollection: false, label: 'Error Text - Nothing Found'},
         placeholder: {value: null, valueDataType: null, isCollection: false, label: 'Placeholder'},
         disabled: {value: null, valueDataType: null, isCollection: false, label: 'Disabled'},
-        minimumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Minimum Number of Selected Records'},
-        maximumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Maximum Number of Selected Records'},
-        minimumNumberOfSelectedRecordsMessage: {value: 'Please select at least {0} records', valueDataType: null, isCollection: false, label: 'Minimum Number of Selected Records Message'},
-        maximumNumberOfSelectedRecordsMessage: {value: 'Please select no more than {0} records', valueDataType: null, isCollection: false, label: 'Maximum Number of Selected Records Message'},
+        minimumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Minimum'},
+        maximumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Maximum'},
+        minimumNumberOfSelectedRecordsMessage: {value: 'Please select at least {0} records', valueDataType: null, isCollection: false, label: 'Minimum'},
+        maximumNumberOfSelectedRecordsMessage: {value: 'Please select no more than {0} records', valueDataType: null, isCollection: false, label: 'Maximum'},
     }
 
     @api get builderContext() {
@@ -102,10 +102,6 @@ export default class Fsc_lookupCPE extends LightningElement {
         {name: 'objectName', type: 'String', value: null}
     ]
 
-    onquerychange(event) {
-        console.log('onquerychange', event.detail);
-    }
-
     updateFlowParam(name, value, ifEmpty=null, noEncode=false) {  
         // Set parameter values to pass to Wizard Flow
         console.log('updateFlowParam:', name, value);        
@@ -121,30 +117,61 @@ export default class Fsc_lookupCPE extends LightningElement {
 
     // These are values coming back from the Wizard Flow
     handleFlowStatusChange(event) {
-        console.log('=== handleFlowStatusChange ===');
+        console.log('soqlQueryBuilder');
+        console.log('event.detail', event.detail);
+        this._query = event.detail;
+    }
 
-        // Used for Lightning Flow
-        // if(event.detail.status === "FINISHED") {
-        //     // Close Modal
-        //     this.closeModal();
-        //     // Get the output variables from the flow
-        //     let outputVariables = event.detail.outputVariables;
-        //     console.log('outputVariables', JSON.stringify(outputVariables));
-        // }
+    setFilterCriteria() {
+        console.log('setFilterCriteria');
+        // Close Modal
+        this.closeModal();
 
-        // Used for LWC
+        // this._query = SELECT Id, Name FROM Account WHERE Name LIKE '%a%' LIMIT 10;
 
-        // Used for USF Flow
-        if (event.detail.flowStatus === "FINISHED") {
-            // Close Modal
-            this.closeModal();
-            event.detail.flowParams.forEach(attribute => {
-                let name = attribute.name;
-                let value = attribute.value; 
-                console.log('Output from Wizard Flow: ', name, value);
-            });
+        // If query contains LIMIT Remove everything after LIMIT
+        if (this._query.includes('LIMIT')) {
+            this._query = this._query.substring(0, this._query.indexOf('LIMIT'));
         }
 
+        // If query contains ORDER BY Remove everything after ORDER BY
+        if (this._query.includes('ORDER BY')) {
+            this._query = this._query.substring(0, this._query.indexOf('ORDER BY'));
+        }
+
+        // Everything Between SELECT and FROM is the fields to display
+        let fieldsToDisplay = this._query.substring(this._query.indexOf('SELECT') + 6, this._query.indexOf('FROM')).trim();
+        console.log('fieldsToDisplay: ' + fieldsToDisplay);
+        // {"label":"Account Name","name":"Name","type":"STRING","sublabel":"Name","leftIcon":"utility:text","hidden":false}]
+        // Go through each field and add the label, name, type, sublabel, leftIcon, and hidden
+        let fields = [];
+        let fieldArray = fieldsToDisplay.split(',');
+        for (let i = 0; i < fieldArray.length; i++) {
+            let field = fieldArray[i].trim();
+            let fieldLabel = field;
+            let fieldName = field;
+            let fieldType = 'STRING';
+            let fieldSublabel = field;
+            let fieldLeftIcon = 'utility:text';
+            let fieldHidden = false;
+            fields.push({
+                label: fieldLabel,
+                name: fieldName,
+                type: fieldType,
+                sublabel: fieldSublabel,
+                leftIcon: fieldLeftIcon,
+                hidden: fieldHidden
+            });
+        }
+        console.log('fields: ' + JSON.stringify(fields));
+        this.inputValues.fieldsToDisplay.value = fields;
+        this.dispatchFlowValueChangeEvent('fieldsToDisplay', fields, DATA_TYPE.STRING);
+
+        // Everything After WHERE is the filter criteria
+        let whereClause = this._query.substring(this._query.indexOf('WHERE') + 5).trim();
+        console.log('whereClause: ' + whereClause);
+        this.inputValues.whereClause.value = whereClause;
+        this.dispatchFlowValueChangeEvent('whereClause', whereClause, DATA_TYPE.STRING);
     }
 
     get wizardParams() {
@@ -197,11 +224,6 @@ export default class Fsc_lookupCPE extends LightningElement {
                     this.inputValues[curInputParam.name].valueDataType = curInputParam.valueDataType;
                 }
 
-                // If input is isManualEntryFieldsToDisplay, then set the isManualEntry flag
-                if (curInputParam.name == 'isManualEntryFieldsToDisplay') {
-                    this.isManualEntry = curInputParam.value;
-                }
-
                 // If input is allowMultiselect, then set the isMultiSelect flag
                 if (curInputParam.name == 'allowMultiselect') {
                     this.isMultiSelect = curInputParam.value;
@@ -234,7 +256,7 @@ export default class Fsc_lookupCPE extends LightningElement {
                     newValue = newValue.name;
                 }
             }
-            console.log('(NEW) in handleValueChange: ' + event.target.name + ' = ' + newValue);
+            console.log('(NEW) in handleValueChange: ' + event.target.name + ' = ' + JSON.stringify(newValue));
             this.dispatchFlowValueChangeEvent(event.target.name, newValue, event.detail.newValueDataType);
 
             // If event.target.name is allowMultiselect and value is true then isMultiSelect is true

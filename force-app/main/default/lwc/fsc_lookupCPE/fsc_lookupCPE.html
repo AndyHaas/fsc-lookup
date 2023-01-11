@@ -48,7 +48,7 @@
     </c-fsc_flow-combobox>
 
     <!-- Advanced -->
-    <!-- Launch Flow and Open SOQL Query Builder When Returned parse out Everything RIGHT of WHERE-->
+    <!-- Launch SOQL Query Builder When Returned parse out Everything RIGHT of WHERE-->
     <div class="slds-m-top_small">
         <lightning-button label="Advance Filter" icon-name="utility:lightning_extension" onclick={showModal}></lightning-button>
     </div>
@@ -62,38 +62,25 @@
                         alternative-text="Close this window" size="large" variant="bare-inverse"
                         onclick={closeModal} class="slds-modal__close">
                     </lightning-button-icon>
-                    <div if:false={isFlowLoaded}>
-                        <h1 class="slds-modal__title slds-hyphenate">Please Wait... Loading Advance Filter Criteria</h1>
-                    </div>
-                    <div if:true={isFlowLoaded}>
-                        <h2 class="slds-modal__title slds-hyphenate">Configure Advance Filter Criteria</h2>
+                    <div>
+                        <h1 class="slds-modal__title slds-hyphenate">Configure Advance Filter Criteria</h1>
                     </div>
                 </div>
 
                 <!-- Body Section -->
                 <div class="slds-modal__content slds-p-around_medium">
-                    <!-- <div if:false={isFlowLoaded}>
-                        <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
-                    </div> -->
-
-                    <!-- Access the flow using the OOB flow launcher -->
-                    <lightning-flow
-                        flow-api-name='Advance_Filter_Criteria_for_Lookup_Component'
-                        flow-input-variables={wizardParams}
-                        onstatuschange={handleFlowStatusChange}
-                    >
-                    </lightning-flow>
-
-                    <!-- Access the flow through USF -->
-                    <!-- <c-fsc_screen-flow width="100%" height={wizardHeight}
-                        flow-name="Advance_Filter_Criteria_for_Lookup_Component" name="uniqueName"
-                        flow-params={wizardParams}
-                        onflowstatuschange={handleFlowStatusChange}>
-                    </c-fsc_screen-flow> -->
-
                     <!-- Access the LWC Directly -->
-                    <!-- <c-soql-query-builder
-                    ></c-soql-query-builder> -->
+                    <c-soql-query-builder
+                        onchange={handleFlowStatusChange}
+                        object-type={inputValues.objectName.value}
+                        disable-object-type-selection=true
+                    ></c-soql-query-builder>
+                    <lightning-button 
+                        variant="brand" 
+                        label="Add Filter Criteria" 
+                        onclick={setFilterCriteria} 
+                        class="slds-m-left_x-small"
+                    ></lightning-button>
                 </div>
 
             </div>
@@ -211,51 +198,60 @@
 
     <!-- If Multi Select False -->
     <template if:true={isMultiSelect}>
-        <!-- Minimum Number of Selected Records -->
-        <c-fsc_flow-combobox 
-            name="minimumNumberOfSelectedRecords" 
-            value={inputValues.minimumNumberOfSelectedRecords.value}
-            builder-context-filter-type="Number"
-            builder-context={_builderContext}
-            label={inputValues.minimumNumberOfSelectedRecords.label}
-            field-level-help="This is the minimum number of records that must be selected. If you leave this field blank, there will be no minimum number of selected records."
-            onvaluechanged={handleValueChange}>
-        </c-fsc_flow-combobox>
+        <c-fsc_flow-banner 
+            banner-color="#657B96"
+            banner-label="Multi Select Configuration"
+            banner-info=""
+        ></c-fsc_flow-banner>
+        <!-- Split to two columns -->
+        <div class="slds-box">
+            <span>Selected Records</span>
+            <!-- Minimum Number of Selected Records -->
+            <c-fsc_flow-combobox 
+                name="minimumNumberOfSelectedRecords" 
+                value={inputValues.minimumNumberOfSelectedRecords.value}
+                builder-context-filter-type="Number"
+                builder-context={_builderContext}
+                label={inputValues.minimumNumberOfSelectedRecords.label}
+                field-level-help="This is the minimum number of records that must be selected. If you leave this field blank, there will be no minimum number of selected records."
+                onvaluechanged={handleValueChange}>
+            </c-fsc_flow-combobox>
+            <!-- Maximum Number of Selected Records -->
+            <c-fsc_flow-combobox 
+                name="maximumNumberOfSelectedRecords" 
+                value={inputValues.maximumNumberOfSelectedRecords.value}
+                builder-context-filter-type="Number"
+                builder-context={_builderContext}
+                label={inputValues.maximumNumberOfSelectedRecords.label}
+                field-level-help="This is the maximum number of records that can be selected. If you leave this field blank, there will be no maximum number of selected records."
+                onvaluechanged={handleValueChange}>
+            </c-fsc_flow-combobox>
+        </div>
 
-        <!-- Maximum Number of Selected Records -->
-        <c-fsc_flow-combobox 
-            name="maximumNumberOfSelectedRecords" 
-            value={inputValues.maximumNumberOfSelectedRecords.value}
-            builder-context-filter-type="Number"
-            builder-context={_builderContext}
-            label={inputValues.maximumNumberOfSelectedRecords.label}
-            field-level-help="This is the maximum number of records that can be selected. If you leave this field blank, there will be no maximum number of selected records."
-            onvaluechanged={handleValueChange}>
-        </c-fsc_flow-combobox>
+        <div class="slds-box">
+            <span>Selected Records Messages</span>
+            <!-- Minimum Number of Selected Records Message -->
+            <c-fsc_flow-combobox 
+                name="minimumNumberOfSelectedRecordsMessage" 
+                value={inputValues.minimumNumberOfSelectedRecordsMessage.value}
+                builder-context-filter-type="String"
+                builder-context={_builderContext}
+                label={inputValues.minimumNumberOfSelectedRecordsMessage.label}
+                field-level-help="This is the message that will be displayed if the user selects less records than the minimum number of selected records. Use the {0} placeholder to display the minimum number of selected records. If you leave this field blank, the default message will be used."
+                onvaluechanged={handleValueChange}>
+            </c-fsc_flow-combobox>
 
-        <!-- Minimum Number of Selected Records Message -->
-        <c-fsc_flow-combobox 
-            name="minimumNumberOfSelectedRecordsMessage" 
-            value={inputValues.minimumNumberOfSelectedRecordsMessage.value}
-            builder-context-filter-type="String"
-            builder-context={_builderContext}
-            label={inputValues.minimumNumberOfSelectedRecordsMessage.label}
-            field-level-help="This is the message that will be displayed if the user selects less records than the minimum number of selected records. Use the {0} placeholder to display the minimum number of selected records. If you leave this field blank, the default message will be used."
-            onvaluechanged={handleValueChange}>
-        </c-fsc_flow-combobox>
-
-        <!-- Maximum Number of Selected Records Message -->
-        <c-fsc_flow-combobox 
-            name="maximumNumberOfSelectedRecordsMessage" 
-            value={inputValues.maximumNumberOfSelectedRecordsMessage.value}
-            builder-context-filter-type="String"
-            builder-context={_builderContext}
-            label={inputValues.maximumNumberOfSelectedRecordsMessage.label}
-            field-level-help="This is the message that will be displayed if the user selects more records than the maximum number of selected records. Use the {0} placeholder to display the maximum number of selected records. If you leave this field blank, the default message will be used."
-            onvaluechanged={handleValueChange}>
-        </c-fsc_flow-combobox>
+            <!-- Maximum Number of Selected Records Message -->
+            <c-fsc_flow-combobox 
+                name="maximumNumberOfSelectedRecordsMessage" 
+                value={inputValues.maximumNumberOfSelectedRecordsMessage.value}
+                builder-context-filter-type="String"
+                builder-context={_builderContext}
+                label={inputValues.maximumNumberOfSelectedRecordsMessage.label}
+                field-level-help="This is the message that will be displayed if the user selects more records than the maximum number of selected records. Use the {0} placeholder to display the maximum number of selected records. If you leave this field blank, the default message will be used."
+                onvaluechanged={handleValueChange}>
+            </c-fsc_flow-combobox>
+        </div>
 
     </template>
-
-
 </template>
