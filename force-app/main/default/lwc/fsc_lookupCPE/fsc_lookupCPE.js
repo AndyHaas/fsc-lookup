@@ -25,10 +25,10 @@ export default class Fsc_lookupCPE extends LightningElement {
     _builderContext = {};
     _values = [];
     _typeMappings = [];
+    _query = '';
 
     showChildInputs = false;
     isMultiSelect = false;
-    isManualEntry = false;
     isFlowLoaded = false;
 
     //don't forget to credit https://www.salesforcepoint.com/2020/07/LWC-modal-popup-example-code.html
@@ -59,10 +59,10 @@ export default class Fsc_lookupCPE extends LightningElement {
         noMatchString: {value: 'Nothing Found', valueDataType: null, isCollection: false, label: 'Error Text - Nothing Found'},
         placeholder: {value: null, valueDataType: null, isCollection: false, label: 'Placeholder'},
         disabled: {value: null, valueDataType: null, isCollection: false, label: 'Disabled'},
-        minimumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Minimum Number of Selected Records'},
-        maximumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Maximum Number of Selected Records'},
-        minimumNumberOfSelectedRecordsMessage: {value: 'Please select at least {0} records', valueDataType: null, isCollection: false, label: 'Minimum Number of Selected Records Message'},
-        maximumNumberOfSelectedRecordsMessage: {value: 'Please select no more than {0} records', valueDataType: null, isCollection: false, label: 'Maximum Number of Selected Records Message'},
+        minimumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Minimum'},
+        maximumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Maximum'},
+        minimumNumberOfSelectedRecordsMessage: {value: 'Please select at least {0} records', valueDataType: null, isCollection: false, label: 'Minimum'},
+        maximumNumberOfSelectedRecordsMessage: {value: 'Please select no more than {0} records', valueDataType: null, isCollection: false, label: 'Maximum'},
     }
 
     @api get builderContext() {
@@ -102,10 +102,6 @@ export default class Fsc_lookupCPE extends LightningElement {
         {name: 'objectName', type: 'String', value: null}
     ]
 
-    onquerychange(event) {
-        console.log('onquerychange', event.detail);
-    }
-
     updateFlowParam(name, value, ifEmpty=null, noEncode=false) {  
         // Set parameter values to pass to Wizard Flow
         console.log('updateFlowParam:', name, value);        
@@ -121,99 +117,61 @@ export default class Fsc_lookupCPE extends LightningElement {
 
     // These are values coming back from the Wizard Flow
     handleFlowStatusChange(event) {
-        console.log('=== handleFlowStatusChange ===');
-        if(event.detail.status === "FINISHED") {
-            // Close Modal
-            this.closeModal();
-            // Get the output variables from the flow
-            let outputVariables = event.detail.outputVariables;
-            console.log('outputVariables', outputVariables);
+        console.log('soqlQueryBuilder');
+        console.log('event.detail', event.detail);
+        this._query = event.detail;
+    }
+
+    setFilterCriteria() {
+        console.log('setFilterCriteria');
+        // Close Modal
+        this.closeModal();
+
+        // this._query = SELECT Id, Name FROM Account WHERE Name LIKE '%a%' LIMIT 10;
+
+        // If query contains LIMIT Remove everything after LIMIT
+        if (this._query.includes('LIMIT')) {
+            this._query = this._query.substring(0, this._query.indexOf('LIMIT'));
         }
 
-        if (event.detail.status == "ERROR") { 
-            console.log('Flow Error: ',JSON.stringify(event));
-        } else {      
-            this.isFlowLoaded = true;
-            event.detail.outputVariables.forEach(attribute => {
-                let name = attribute.name;
-                let value = attribute.value; 
-                console.log('Output from Wizard Flow: ', name, value);
+        // If query contains ORDER BY Remove everything after ORDER BY
+        if (this._query.includes('ORDER BY')) {
+            this._query = this._query.substring(0, this._query.indexOf('ORDER BY'));
+        }
 
-                if (name == 'vSelectionMethod') { 
-                    this.vSelectionMethod = value;
-                    this.updateFlowParam(name, value, '');
-                    this.isNextDisabled = (value) ? false : true;
-                }
-
-                if (name == 'vFieldList' && value) { 
-                    // Save Selected Fields & Create Collection
-                    this.vFieldList = value.split(' ').join('');  //Remove all spaces  
-                    this.updateFlowParam(name, value, null, defaults.NOENCODE);
-                    this.createFieldCollection(this.vFieldList);
-                }
-
-                if (name == 'vEarlyExit') { 
-                    // Determine which screen the user exited on
-                    this.isEarlyExit = value;
-                }
-
-                if (name.substring(0,defaults.wizardAttributePrefix.length) == defaults.wizardAttributePrefix) {
-                    let changedAttribute = name.replace(defaults.wizardAttributePrefix, '');                
-                    if (event.detail.flowExit && !this.isEarlyExit) { 
-                        // Update the wizard variables to force passing the changed values back to the CPE which will then post to the Flow Builder
-                        // switch (changedAttribute) { 
-                        //     case 'columnFields':
-                        //         this.wiz_columnFields = value;
-                        //         break;
-                        //     case 'columnAlignments':
-                        //         this.wiz_columnAlignments = value;
-                        //         break;
-                        //     case 'columnEdits':
-                        //         this.wiz_columnEdits = value;
-                        //         this.isNoEdits = (value) ? false : true;
-                        //         this.dispatchFlowValueChangeEvent('isRequired', false, 'boolean');
-                        //         if (this.isNoEdits) {
-                        //             this.updateCheckboxValue('suppressBottomBar', false);
-                        //             this.updateCheckboxValue('navigateNextOnSave', false);
-                        //             this.isDisableSuppressBottomBar = true;
-                        //             this.isDisableNavigateNext = true;
-                        //         }
-                        //         break;
-                        //     case 'columnFilters':
-                        //         this.wiz_columnFilters = value;
-                        //         this.isNoFilters = (value) ? false : true;
-                        //         if (this.isNoFilters) {
-                        //             this.updateCheckboxValue('matchCaseOnFilters', false);
-                        //         }
-                        //         break;
-                        //     case 'columnIcons':
-                        //         this.wiz_columnIcons = value;
-                        //         break;
-                        //     case 'columnLabels':
-                        //         this.wiz_columnLabels = value;
-                        //         break;
-                        //     case 'columnWidths':
-                        //         this.wiz_columnWidths = value;
-                        //         break;
-                        //     case 'columnWraps':
-                        //         this.wiz_columnWraps = value;
-                        //         break;
-                        //     case 'columnCellAttribs': 
-                        //         this.wiz_columnCellAttribs = value;
-                        //         break;
-                        //     case 'columnTypeAttribs': 
-                        //         this.wiz_columnTypeAttribs = value;
-                        //         break;
-                        //     case 'columnOtherAttribs': 
-                        //         this.wiz_columnOtherAttribs = value;
-                        //         break;                                
-                        //     default:
-                        // }
-                        this.isFlowLoaded = false;
-                    }
-                }
+        // Everything Between SELECT and FROM is the fields to display
+        let fieldsToDisplay = this._query.substring(this._query.indexOf('SELECT') + 6, this._query.indexOf('FROM')).trim();
+        console.log('fieldsToDisplay: ' + fieldsToDisplay);
+        // {"label":"Account Name","name":"Name","type":"STRING","sublabel":"Name","leftIcon":"utility:text","hidden":false}]
+        // Go through each field and add the label, name, type, sublabel, leftIcon, and hidden
+        let fields = [];
+        let fieldArray = fieldsToDisplay.split(',');
+        for (let i = 0; i < fieldArray.length; i++) {
+            let field = fieldArray[i].trim();
+            let fieldLabel = field;
+            let fieldName = field;
+            let fieldType = 'STRING';
+            let fieldSublabel = field;
+            let fieldLeftIcon = 'utility:text';
+            let fieldHidden = false;
+            fields.push({
+                label: fieldLabel,
+                name: fieldName,
+                type: fieldType,
+                sublabel: fieldSublabel,
+                leftIcon: fieldLeftIcon,
+                hidden: fieldHidden
             });
         }
+        console.log('fields: ' + JSON.stringify(fields));
+        this.inputValues.fieldsToDisplay.value = fields;
+        this.dispatchFlowValueChangeEvent('fieldsToDisplay', fields, DATA_TYPE.STRING);
+
+        // Everything After WHERE is the filter criteria
+        let whereClause = this._query.substring(this._query.indexOf('WHERE') + 5).trim();
+        console.log('whereClause: ' + whereClause);
+        this.inputValues.whereClause.value = whereClause;
+        this.dispatchFlowValueChangeEvent('whereClause', whereClause, DATA_TYPE.STRING);
     }
 
     get wizardParams() {
@@ -266,11 +224,6 @@ export default class Fsc_lookupCPE extends LightningElement {
                     this.inputValues[curInputParam.name].valueDataType = curInputParam.valueDataType;
                 }
 
-                // If input is isManualEntryFieldsToDisplay, then set the isManualEntry flag
-                if (curInputParam.name == 'isManualEntryFieldsToDisplay') {
-                    this.isManualEntry = curInputParam.value;
-                }
-
                 // If input is allowMultiselect, then set the isMultiSelect flag
                 if (curInputParam.name == 'allowMultiselect') {
                     this.isMultiSelect = curInputParam.value;
@@ -303,7 +256,7 @@ export default class Fsc_lookupCPE extends LightningElement {
                     newValue = newValue.name;
                 }
             }
-            console.log('(NEW) in handleValueChange: ' + event.target.name + ' = ' + newValue);
+            console.log('(NEW) in handleValueChange: ' + event.target.name + ' = ' + JSON.stringify(newValue));
             this.dispatchFlowValueChangeEvent(event.target.name, newValue, event.detail.newValueDataType);
 
             // If event.target.name is allowMultiselect and value is true then isMultiSelect is true
