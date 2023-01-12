@@ -12,45 +12,62 @@
         required
     ></c-fsc_pick-object-and-field-3 >
 
-    <!-- Fields to Display -->
-    <c-fsc_field-selector-3
-    id="fieldsToDisplay"
-    name="fieldsToDisplay"
-    object-name={inputValues.objectName.value}
-    label={inputValues.fieldsToDisplay.label}
-    selected-fields={inputValues.fieldsToDisplay.value}
-    required
-    allow-multiselect=true
-    onfieldupdate={handleValueChange}>
-    </c-fsc_field-selector-3>
-
-    <!-- Fields to Search -->
-    <c-fsc_field-selector-3
-        id="fieldsToSearch"
-        name="fieldsToSearch"
+    <template if:true={showAdvanceConfiguration}>
+        <!-- Fields to Display -->
+        <c-fsc_field-selector-3
+        id="fieldsToDisplay"
+        name="fieldsToDisplay"
         object-name={inputValues.objectName.value}
-        label={inputValues.fieldsToSearch.label}
-        selected-fields={inputValues.fieldsToSearch.value}
+        label={inputValues.fieldsToDisplay.label}
+        selected-fields={inputValues.fieldsToDisplay.value}
+        required
         allow-multiselect=true
         onfieldupdate={handleValueChange}>
-    </c-fsc_field-selector-3>
+        </c-fsc_field-selector-3>
 
-    <!-- WHERE CLAUSE -->
+        <!-- Fields to Search -->
+        <c-fsc_field-selector-3
+            id="fieldsToSearch"
+            name="fieldsToSearch"
+            object-name={inputValues.objectName.value}
+            label={inputValues.fieldsToSearch.label}
+            selected-fields={inputValues.fieldsToSearch.value}
+            allow-multiselect=true
+            onfieldupdate={handleValueChange}>
+        </c-fsc_field-selector-3>
+
+        <!-- WHERE CLAUSE -->
+        <c-fsc_flow-combobox 
+            name="whereClause" 
+            value={inputValues.whereClause.value}
+            builder-context-filter-type="String"
+            builder-context={_builderContext}
+            label={inputValues.whereClause.label}
+            field-level-help="The WHERE clause to use when querying for records. Use the format: FieldName = 'Value'. You can use AND and OR to combine multiple conditions. Do not include the WHERE keyword. "
+            onvaluechanged={handleValueChange}>
+        </c-fsc_flow-combobox>
+    </template>
+
     <!-- Simple -->
-    <c-fsc_flow-combobox 
-        name="whereClause" 
-        value={inputValues.whereClause.value}
-        builder-context-filter-type="String"
-        builder-context={_builderContext}
-        label={inputValues.whereClause.label}
-        field-level-help="The WHERE clause to use when querying for records. Use the format: FieldName = 'Value'. You can use AND and OR to combine multiple conditions. Do not include the WHERE keyword. "
-        onvaluechanged={handleValueChange}>
-    </c-fsc_flow-combobox>
-
-    <!-- Advanced -->
-    <!-- Launch SOQL Query Builder When Returned parse out Everything RIGHT of WHERE-->
+    <!-- Launch SOQL Query Builder -->
+    <!-- This will return the WHERE CLAUSE and any fields they want to display -->
     <div class="slds-m-top_small">
-        <lightning-button label="Advance Filter" icon-name="utility:lightning_extension" onclick={showModal}></lightning-button>
+        <template if:false={showAdvanceConfiguration}>
+
+            <c-fsc_flow-banner 
+                banner-color="#657B96"
+                banner-label="Select Fields to Display and Filter Criteria"
+                banner-info=""
+            ></c-fsc_flow-banner>
+            <lightning-button label="Start Configuration" icon-name="utility:lightning_extension" onclick={showModal}></lightning-button>
+
+        </template>
+        <template if:true={showAdvanceConfiguration}>
+            <lightning-button label="Hide Advance Configuration" icon-name="utility:lightning_extension" onclick={showAdvanceConfigurationHandler}></lightning-button>
+        </template>
+        <template if:false={showAdvanceConfiguration}>
+            <lightning-button label="Show Advance Configuration" icon-name="utility:lightning_extension" onclick={showAdvanceConfigurationHandler}></lightning-button>
+        </template>
     </div>
     <template if:true={openModal}>
         <div class="slds-modal slds-modal_large slds-fade-in-open slds-backdrop">
@@ -79,7 +96,7 @@
                         variant="brand" 
                         label="Add Filter Criteria" 
                         onclick={setFilterCriteria} 
-                        class="slds-m-left_x-small"
+                        class="slds-m-left_x-small slds-float_right"
                     ></lightning-button>
                 </div>
 

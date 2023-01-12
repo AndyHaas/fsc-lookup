@@ -31,6 +31,12 @@ export default class Fsc_lookupCPE extends LightningElement {
     isMultiSelect = false;
     isFlowLoaded = false;
 
+    @track showAdvanceConfiguration = false;
+
+    showAdvanceConfigurationHandler() {
+        this.showAdvanceConfiguration = !this.showAdvanceConfiguration;
+    }
+
     //don't forget to credit https://www.salesforcepoint.com/2020/07/LWC-modal-popup-example-code.html
     @track openModal = false;
 
@@ -168,10 +174,13 @@ export default class Fsc_lookupCPE extends LightningElement {
         this.dispatchFlowValueChangeEvent('fieldsToDisplay', fields, DATA_TYPE.STRING);
 
         // Everything After WHERE is the filter criteria
-        let whereClause = this._query.substring(this._query.indexOf('WHERE') + 5).trim();
-        console.log('whereClause: ' + whereClause);
-        this.inputValues.whereClause.value = whereClause;
-        this.dispatchFlowValueChangeEvent('whereClause', whereClause, DATA_TYPE.STRING);
+        // Check if WHERE is in the query
+        if (this._query.includes('WHERE')) {
+            let whereClause = this._query.substring(this._query.indexOf('WHERE') + 5).trim();
+            console.log('whereClause: ' + whereClause);
+            this.inputValues.whereClause.value = whereClause;
+            this.dispatchFlowValueChangeEvent('whereClause', whereClause, DATA_TYPE.STRING);
+        }
     }
 
     get wizardParams() {
@@ -226,7 +235,7 @@ export default class Fsc_lookupCPE extends LightningElement {
 
                 // If input is allowMultiselect, then set the isMultiSelect flag
                 if (curInputParam.name == 'allowMultiselect') {
-                    this.isMultiSelect = curInputParam.value;
+                    this.isMultiSelect = curInputParam.value ? true : false;
                 }
             });
         }
