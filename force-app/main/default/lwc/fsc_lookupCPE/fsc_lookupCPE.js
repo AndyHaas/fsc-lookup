@@ -33,8 +33,15 @@ export default class Fsc_lookupCPE extends LightningElement {
 
     @track showAdvanceConfiguration = false;
 
-    showAdvanceConfigurationHandler() {
-        this.showAdvanceConfiguration = !this.showAdvanceConfiguration;
+    showAdvanceConfigurationHandler(event) {
+        console.log('showAdvanceConfigurationHandler', JSON.stringify(event.detail));
+        // If SOQL Query is selected, false
+        // If Flow Resources is selected, true
+        if (event.detail.value === 'SOQL Query') {
+            this.showAdvanceConfiguration = false;
+        } else {
+            this.showAdvanceConfiguration = true;
+        }
     }
 
     //don't forget to credit https://www.salesforcepoint.com/2020/07/LWC-modal-popup-example-code.html
@@ -47,6 +54,15 @@ export default class Fsc_lookupCPE extends LightningElement {
     closeModal() {
         this.openModal = false;
     }
+
+    @api get automaticOutputVariables() {
+        return this._automaticOutputVariables;
+    };
+    
+    set automaticOutputVariables(value) {
+        this._automaticOutputVariables = value;
+    }
+    @track _automaticOutputVariables;
 
     @track inputValues = {
         objectName: {value: null, valueDataType: null, isCollection: false, label: 'Lookup which Object?', required: true, errorMessage: 'Please select an object'},
@@ -69,6 +85,7 @@ export default class Fsc_lookupCPE extends LightningElement {
         maximumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Maximum'},
         minimumNumberOfSelectedRecordsMessage: {value: 'Please select at least {0} records', valueDataType: null, isCollection: false, label: 'Minimum'},
         maximumNumberOfSelectedRecordsMessage: {value: 'Please select no more than {0} records', valueDataType: null, isCollection: false, label: 'Maximum'},
+        dataSource: {value: 'SOQL Query', valueDataType: null, isCollection: false, label: 'Data Source'},
     }
 
     @api get builderContext() {
@@ -102,6 +119,17 @@ export default class Fsc_lookupCPE extends LightningElement {
             {label: 'All', value: 'All'},
         ];
     }
+
+    // Data Source Options
+    @track dataSourceOptions = [
+        {label: 'SOQL Query', value: 'SOQL Query'},
+        {label: 'Flow Resources', value: 'Flow Resources'}
+    ];
+
+    @track requiredOptions = [
+        {label: 'No', value: false},
+        {label: 'Yes', value: true}
+    ];
 
     // Input attributes for the Wizard Flow
     @api flowParams = [

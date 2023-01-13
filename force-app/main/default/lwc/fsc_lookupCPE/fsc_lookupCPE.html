@@ -12,6 +12,18 @@
         required
     ></c-fsc_pick-object-and-field-3 >
 
+    <!-- Radio Buttons ( SOQL Query ) ( Flow Resources ) -->
+    <!-- Controls if the Advanced Configuration is show or the SOQL Builder -->
+    <lightning-radio-group name="dataSource"
+            label={inputValues.dataSource.label}
+            options={dataSourceOptions}
+            value={inputValues.dataSource.value}
+            type="button"
+            onchange={showAdvanceConfigurationHandler}>
+    </lightning-radio-group>
+
+    <!-- Advanced Component Configuration -->
+    <!-- Even when you use SOQL builder these still get filled in -->
     <template if:true={showAdvanceConfiguration}>
         <!-- Fields to Display -->
         <c-fsc_field-selector-3
@@ -44,29 +56,17 @@
             builder-context={_builderContext}
             label={inputValues.whereClause.label}
             field-level-help="The WHERE clause to use when querying for records. Use the format: FieldName = 'Value'. You can use AND and OR to combine multiple conditions. Do not include the WHERE keyword. "
-            onvaluechanged={handleValueChange}>
+            onvaluechanged={handleValueChange}
+            automatic-output-variables={automaticOutputVariables}>
         </c-fsc_flow-combobox>
     </template>
 
     <!-- Simple -->
     <!-- Launch SOQL Query Builder -->
     <!-- This will return the WHERE CLAUSE and any fields they want to display -->
-    <div class="slds-m-top_small">
+    <div class="slds-m-top_small slds-m-bottom_small">
         <template if:false={showAdvanceConfiguration}>
-
-            <c-fsc_flow-banner 
-                banner-color="#657B96"
-                banner-label="Select Fields to Display and Filter Criteria"
-                banner-info=""
-            ></c-fsc_flow-banner>
-            <lightning-button label="Start Configuration" icon-name="utility:lightning_extension" onclick={showModal}></lightning-button>
-
-        </template>
-        <template if:true={showAdvanceConfiguration}>
-            <lightning-button label="Hide Advance Configuration" icon-name="utility:lightning_extension" onclick={showAdvanceConfigurationHandler}></lightning-button>
-        </template>
-        <template if:false={showAdvanceConfiguration}>
-            <lightning-button label="Show Advance Configuration" icon-name="utility:lightning_extension" onclick={showAdvanceConfigurationHandler}></lightning-button>
+            <lightning-button label="Build SOQL" icon-name="utility:lightning_extension" onclick={showModal}></lightning-button>
         </template>
     </div>
     <template if:true={openModal}>
@@ -112,7 +112,8 @@
         builder-context={_builderContext}
         label={inputValues.label.label}
         field-level-help="The label to display for the field."
-        onvaluechanged={handleValueChange}>
+        onvaluechanged={handleValueChange}
+        automatic-output-variables={automaticOutputVariables}>
     </c-fsc_flow-combobox>
     
     <!-- Default Value -->
@@ -123,7 +124,8 @@
         builder-context={_builderContext}
         label={inputValues.defaultValueInput.label}
         field-level-help="The default value. Set this value in the format of a record ID."
-        onvaluechanged={handleValueChange}>
+        onvaluechanged={handleValueChange}
+        automatic-output-variables={automaticOutputVariables}>
     </c-fsc_flow-combobox>
 
     <!-- Field Level Help -->
@@ -134,7 +136,8 @@
         builder-context={_builderContext}
         label={inputValues.fieldLevelHelp.label}
         field-level-help="The text to display when the user hovers over the field-level-help icon."
-        onvaluechanged={handleValueChange}>
+        onvaluechanged={handleValueChange}
+        automatic-output-variables={automaticOutputVariables}>
     </c-fsc_flow-combobox>
 
     <!-- Message When Value Missing -->
@@ -145,7 +148,8 @@
         builder-context={_builderContext}
         label={inputValues.messageWhenValueMissing.label}
         field-level-help="The text to display when the user doesn't enter a value and the field is required."
-        onvaluechanged={handleValueChange}>
+        onvaluechanged={handleValueChange}
+        automatic-output-variables={automaticOutputVariables}>
     </c-fsc_flow-combobox>
 
     <!-- No Match String -->
@@ -156,7 +160,8 @@
         builder-context={_builderContext}
         label={inputValues.noMatchString.label}
         field-level-help="The text to display when the user enters a value that doesn't match any records."
-        onvaluechanged={handleValueChange}>
+        onvaluechanged={handleValueChange}
+        automatic-output-variables={automaticOutputVariables}>
     </c-fsc_flow-combobox>
 
     <!-- Placeholder -->
@@ -167,7 +172,8 @@
         builder-context={_builderContext}
         label={inputValues.placeholder.label}
         field-level-help="The text to display when the field is empty, to prompt the user for a valid entry."
-        onvaluechanged={handleValueChange}>
+        onvaluechanged={handleValueChange}
+        automatic-output-variables={automaticOutputVariables}>
     </c-fsc_flow-combobox>
 
     <!-- Show New Record Action -->
