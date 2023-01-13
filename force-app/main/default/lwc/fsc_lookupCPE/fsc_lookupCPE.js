@@ -48,6 +48,41 @@ export default class Fsc_lookupCPE extends LightningElement {
     _values = [];
     _typeMappings = [];
     _query = '';
+    _elementType;
+    _elementName;
+
+    // For sObject Type on the Lookup
+    handleDynamicTypeMapping(event) { 
+        console.log('handling a dynamic type mapping');
+        console.log('event is ' + JSON.stringify(event));
+        let typeValue = event.detail.objectType;
+        const typeName = this._elementType === "Screen" ? 'T' : 'T__record'; 
+        console.log('typeValue is: ' + typeValue);
+        const dynamicTypeMapping = new CustomEvent('configuration_editor_generic_type_mapping_changed', {
+            composed: true,
+            cancelable: false,
+            bubbles: true,
+            detail: {
+                typeName, 
+                typeValue, 
+            }
+        });
+        this.dispatchEvent(dynamicTypeMapping);
+        this.dispatchFlowValueChangeEvent('objectName', event.detail.objectType, DATA_TYPE.STRING);
+    }    
+
+    @api
+    get elementInfo() {
+        return this._elementInfo;
+    }
+
+    set elementInfo(info) {
+        this._elementInfo = info || {};
+        if (this._elementInfo) {
+            this._elementName = this._elementInfo.apiName;
+            this._elementType = this._elementInfo.type;
+        }
+    }
 
     showChildInputs = false;
     isMultiSelect = false;
@@ -412,10 +447,6 @@ export default class Fsc_lookupCPE extends LightningElement {
 
     handleRightIconChange(event) {
         this.dispatchFlowValueChangeEvent('rightIconName', event.detail);
-    }
-
-    handleObjectChange(event) {
-        this.dispatchFlowValueChangeEvent('objectName', event.detail.objectType, DATA_TYPE.STRING);
     }
 
     dispatchFlowValueChangeEvent(id, newValue, dataType = DATA_TYPE.STRING) {

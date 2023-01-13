@@ -13,3 +13,6 @@ declare module "@salesforce/apex/fsc_lookupController.getRecords" {
 declare module "@salesforce/apex/fsc_lookupController.getObjectIcon" {
   export default function getObjectIcon(param: {objectName: any}): Promise<any>;
 }
+declare module "@salesforce/apex/fsc_lookupController.getRecordDetail" {
+  export default function getRecordDetail(param: {objectName: any, recordIds: any}): Promise<any>;
+}
