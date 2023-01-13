@@ -14,9 +14,9 @@
             <property name="fieldsToDisplay" label="Fields to Display" type="String" description="Enter a comma-separated string of field API names" role="inputOnly"></property>
             <property name="whereClause" label="Where Clause" type="String" description="(Advanced) Enter a value for the SOQL query's WHERE clause" role="inputOnly"></property>          
             <property name="defaultValueInput" label="Default Value" type="String" role="inputOnly"></property>          
-            <property name="required" label="Required" type="Boolean" role="inputOnly"></property> 
+            <property name="required" label="Required" type="Boolean" default="false" role="inputOnly"></property> 
             <property name="messageWhenValueMissing" label="Message When Value Missing" type="String" role="inputOnly"></property>     
-            <property name="showNewRecordAction" label="Show 'New Record' Action" type="Boolean" role="inputOnly"></property>   
+            <property name="showNewRecordAction" label="Show 'New Record' Action" type="Boolean" default="false" role="inputOnly"></property>   
             <property name="iconName" label="Icon Name" type="String" description="Enter a Lightning Design System icon name" role="inputOnly"></property>
             <property name="placeholder" label="Placeholder" type="String" role="inputOnly"></property>
             <property name="noMatchString" label="No Match Response" type="String" role="inputOnly"></property>
@@ -24,10 +24,10 @@
             <property name="fieldsToSearch" label="Fields to Search" type="String" role="inputOnly"></property>
             <property name="leftIconName" label="Left Icon Name" type="String" default="utility:search" role="inputOnly"></property>
             <property name="rightIconName" label="Right Icon Name" type="String" default="utility:down" role="inputOnly"></property>
-            <property name="disabled" label="Disabled" type="Boolean" role="inputOnly"></property>
+            <property name="disabled" label="Disabled" type="Boolean" default="false" role="inputOnly"></property>
 
             <!-- Multiselect Variables -->
-            <property name="allowMultiselect" label="Allow Multiselect" type="Boolean" role="inputOnly"></property>
+            <property name="allowMultiselect" label="Allow Multiselect" type="Boolean" default="false" role="inputOnly"></property>
             <property name="minimumNumberOfSelectedRecords" label="Minimum Number of Selected Records" type="Integer" role="inputOnly"></property>
             <property name="maximumNumberOfSelectedRecords" label="Maximum Number of Selected Records" type="Integer" role="inputOnly"></property>
             <property name="minimumNumberOfSelectedRecordsMessage" label="Minimum Number of Selected Records Message" type="String" role="inputOnly"></property>

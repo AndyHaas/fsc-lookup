@@ -12,9 +12,31 @@ const FLOW_EVENT_TYPE = {
     CHANGE: 'configuration_editor_input_value_changed'
 }
 
-const defaults = {
-    wizardAttributePrefix: 'wiz_',
-    NOENCODE: true
+/** 
+ * when boolean balues are passed around in Flows, they're passed around as
+ * these '$GlobalConstant' values
+ * https://github.com/jkranz-rk/RecordTypePicker/commit/23c342a46eea96451b3897070da9ddf8b0b215ad
+*/
+const flowConstants = {
+    BOOLEAN : {
+        TRUE : '$GlobalConstant.True',
+        FALSE : '$GlobalConstant.False'
+    }
+};
+
+const convertBooleanFlowToReal = (boolVal) => {
+    switch (boolVal) {
+        case '$GlobalConstant.True':
+            return true;
+        case '$GlobalConstant.False':
+            return false;
+        default:
+            return false;
+    }
+};
+
+const convertBooleanRealToFlow = (boolVal) => {
+    return boolVal ? '$GlobalConstant.True' : '$GlobalConstant.False';
 };
 
 const VALIDATEABLE_INPUTS = ['objectName', 'fieldsToDisplay'];
@@ -30,6 +52,23 @@ export default class Fsc_lookupCPE extends LightningElement {
     showChildInputs = false;
     isMultiSelect = false;
     isFlowLoaded = false;
+
+    // Variables to show/hide radio buttons to show flow combo box
+    showFlowResource_Required = false;
+    showFlowResource_NewRecord = false;
+    showFlowResource_Multi = false;
+
+    // Function to show/hide radio buttons to show flow combo box
+    showFlowResourceHandlerRequired(event) {
+        this.showFlowResource_Required = !this.showFlowResource_Required;
+    }
+    showFlowResourceHandlerNewRecord(event) {
+        this.showFlowResource_NewRecord = !this.showFlowResource_NewRecord;
+    }
+    showFlowResourceHandlerMulti(event) {
+        this.showFlowResource_Multi = !this.showFlowResource_Multi;
+    }
+
 
     @track showAdvanceConfiguration = false;
 
@@ -71,16 +110,16 @@ export default class Fsc_lookupCPE extends LightningElement {
         fieldsToSearch: {value: null, valueDataType: null, isCollection: true, label: 'Fields to Search', serialized: true},
         whereClause: {value: null, valueDataType: null, isCollection: false, label: 'Filter Criteria'},
         defaultValueInput: {value: null, valueDataType: null, isCollection: false, label: 'Default Value'},
-        required: {value: null, valueDataType: null, isCollection: false, label: 'Required'},
+        required: {value: false, valueDataType: 'Boolean', isCollection: false, label: 'Required'},
         messageWhenValueMissing: {value: 'Please select a record', valueDataType: null, isCollection: false, label: 'Message When Value Missing'},
-        showNewRecordAction: {value: null, valueDataType: null, isCollection: false, label: 'Show New Record Action'},
+        showNewRecordAction: {value: false, valueDataType: 'Boolean', isCollection: false, label: 'New Record Action'},
         leftIconName: {value: 'utility:search', valueDataType: null, isCollection: false, label: 'Left Icon Name'},
         rightIconName: {value: 'utility:down', valueDataType: null, isCollection: false, label: 'Right Icon Name'},
-        allowMultiselect: {value: false, valueDataType: null, isCollection: false, label: 'Allow Multiselect'},
+        allowMultiselect: {value: false, valueDataType: 'Boolean', isCollection: false, label: 'Selection Mode'},
         fieldLevelHelp: {value: null, valueDataType: null, isCollection: false, label: 'Field Level Help'},
         noMatchString: {value: 'Nothing Found', valueDataType: null, isCollection: false, label: 'Error Text - Nothing Found'},
         placeholder: {value: null, valueDataType: null, isCollection: false, label: 'Placeholder'},
-        disabled: {value: null, valueDataType: null, isCollection: false, label: 'Disabled'},
+        disabled: {value: false, valueDataType: 'Boolean', isCollection: false, label: 'Disabled'},
         minimumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Minimum'},
         maximumNumberOfSelectedRecords: {value: null, valueDataType: null, isCollection: false, label: 'Maximum'},
         minimumNumberOfSelectedRecordsMessage: {value: 'Please select at least {0} records', valueDataType: null, isCollection: false, label: 'Minimum'},
@@ -121,15 +160,36 @@ export default class Fsc_lookupCPE extends LightningElement {
     }
 
     // Data Source Options
-    @track dataSourceOptions = [
-        {label: 'SOQL Query', value: 'SOQL Query'},
-        {label: 'Flow Resources', value: 'Flow Resources'}
-    ];
+    get dataSourceOptions () { 
+        return [
+            {label: 'SOQL Query', value: 'SOQL Query'},
+            {label: 'Flow Resources', value: 'Flow Resources'}
+        ];
+    }
 
-    @track requiredOptions = [
-        {label: 'No', value: false},
-        {label: 'Yes', value: true}
-    ];
+    // Required Options
+    get requiredOptions () {
+        return [
+            {label: 'True', value: '$GlobalConstant.True'},
+            {label: 'False', value: '$GlobalConstant.False'}
+        ];
+    } 
+
+    // Show New Record Action Options
+    get showNewRecordActionOptions  () {
+        return [
+            {label: 'Show', value: '$GlobalConstant.True'},
+            {label: 'Hide', value: '$GlobalConstant.False'}
+        ];
+    }
+
+    // Allow Multiselect Options
+    get allowMultiselectOptions  () {
+        return [
+            {label: 'Single', value: '$GlobalConstant.False'},
+            {label: 'Multiple', value: '$GlobalConstant.True'}
+        ];
+    }
 
     // Input attributes for the Wizard Flow
     @api flowParams = [
@@ -211,13 +271,6 @@ export default class Fsc_lookupCPE extends LightningElement {
         }
     }
 
-    get wizardParams() {
-        // Parameter value string to pass to Wizard Flow
-        this.updateFlowParam('objectName', this.inputValues.objectName.value);
-        console.log('this.flowParams: ', JSON.stringify(this.flowParams));
-        return this.flowParams;
-    }
-
     @api validate() {
         console.log('in validate: ' + JSON.stringify(VALIDATEABLE_INPUTS));
         const validity = [];
@@ -248,11 +301,17 @@ export default class Fsc_lookupCPE extends LightningElement {
 
 
     initializeValues(value) {
+        console.log('in initializeValues: ' + JSON.stringify(value));
         if (this._values && this._values.length) {
             this._values.forEach(curInputParam => {
                 if (curInputParam.name && this.inputValues[curInputParam.name]) {
-                    console.log('in initializeValues: ' + curInputParam.name + ' = ' + curInputParam.value);
+                    console.log('in initializeValues: ' + curInputParam.name + ' = ' + curInputParam.value + ' type: ' + curInputParam.valueDataType);
                     // console.log('in initializeValues: '+ JSON.stringify(curInputParam));
+
+                    
+                    if (this.inputValues[curInputParam.name].valueDataType === 'Boolean') { // transpose '$GlobalConstant strings to Booleans
+                        this.inputValues[curInputParam.name].value = convertBooleanRealToFlow(this.inputValues[curInputParam.name].value);
+                    }
                     if (this.inputValues[curInputParam.name].serialized) {
                         this.inputValues[curInputParam.name].value = JSON.parse(curInputParam.value);
                     } else {
@@ -263,7 +322,7 @@ export default class Fsc_lookupCPE extends LightningElement {
 
                 // If input is allowMultiselect, then set the isMultiSelect flag
                 if (curInputParam.name == 'allowMultiselect') {
-                    this.isMultiSelect = curInputParam.value ? true : false;
+                    this.isMultiSelect = convertBooleanFlowToReal(curInputParam.value) ? true : false;
                 }
             });
         }
@@ -278,8 +337,11 @@ export default class Fsc_lookupCPE extends LightningElement {
         });
     }
 
+    @track value = false;
+    @track label = 'Select an Option';
+
     handleValueChange(event) {
-        console.log('in handleValueChange: ' + JSON.stringify(event));
+        console.log('in handleValueChange: ');
         if (event.detail && event.target) {
             // Any component using fsc_flow-combobox will be ran through here
             // This is the newer version and will allow users to use merge fields
@@ -293,13 +355,12 @@ export default class Fsc_lookupCPE extends LightningElement {
                     newValue = newValue.name;
                 }
             }
-            console.log('(NEW) in handleValueChange: ' + event.target.name + ' = ' + JSON.stringify(newValue));
-            this.dispatchFlowValueChangeEvent(event.target.name, newValue, event.detail.newValueDataType);
 
             // If event.target.name is allowMultiselect and value is true then isMultiSelect is true
             // Used to disable/enable max and min fields
             if (event.target.name == 'allowMultiselect') {
-                if (newValue) {
+                console.log('in handleValueChange: allowMultiselect = ' + convertBooleanFlowToReal(newValue))
+                if (convertBooleanFlowToReal(newValue)) {
                     this.isMultiSelect = true;
                 } else {
                     this.isMultiSelect = false;
@@ -309,6 +370,11 @@ export default class Fsc_lookupCPE extends LightningElement {
                     this.dispatchFlowValueChangeEvent('maximumNumberOfSelectedRecords', 0, DATA_TYPE.INTEGER);
                 }
             }
+
+            console.log('(NEW) in handleValueChange: ' + event.target.name + ' = ' + JSON.stringify(newValue));
+            newValue = (event.detail.newValueDataType === 'Boolean' ? convertBooleanFlowToReal(newValue) : newValue);
+            this.dispatchFlowValueChangeEvent(event.target.name, newValue, event.detail.newValueDataType);
+
         } else if ( event.detail && event.currentTarget ) {
             // This is the older version for any old inputs that are still using currentTarget
             // Kept for backwards compatibility

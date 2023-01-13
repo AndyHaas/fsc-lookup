@@ -66,7 +66,13 @@
     <!-- This will return the WHERE CLAUSE and any fields they want to display -->
     <div class="slds-m-top_small slds-m-bottom_small">
         <template if:false={showAdvanceConfiguration}>
-            <lightning-button label="Build SOQL" icon-name="utility:lightning_extension" onclick={showModal}></lightning-button>
+            <template if:false={inputValues.objectName.value}>
+                <lightning-button label="Build SOQL" icon-name="utility:lightning_extension" onclick={showModal} disabled></lightning-button>
+                <div>Select Object First</div>
+            </template>
+            <template if:true={inputValues.objectName.value}>
+                <lightning-button label="Build SOQL" icon-name="utility:lightning_extension" onclick={showModal}></lightning-button>
+            </template>
         </template>
     </div>
     <template if:true={openModal}>
@@ -176,33 +182,6 @@
         automatic-output-variables={automaticOutputVariables}>
     </c-fsc_flow-combobox>
 
-    <!-- Show New Record Action -->
-    <c-fsc_flow-checkbox 
-        name="showNewRecordAction" 
-        checked={inputValues.showNewRecordAction.value}
-        label={inputValues.showNewRecordAction.label}
-        field-level-help="If checked, the user can create a new record from the lookup."
-        oncheckboxchanged={handleValueChange}>
-    </c-fsc_flow-checkbox>
-
-    <!-- Allow Multi Select -->
-    <c-fsc_flow-checkbox 
-        name="allowMultiselect" 
-        checked={inputValues.allowMultiselect.value}
-        label={inputValues.allowMultiselect.label}
-        field-level-help="If checked, the user can select multiple values."
-        oncheckboxchanged={handleValueChange}>
-    </c-fsc_flow-checkbox>
-
-    <!-- Required -->
-    <c-fsc_flow-checkbox 
-        name="required" 
-        checked={inputValues.required.value}
-        label={inputValues.required.label}
-        field-level-help="If checked, the user must select a value before they can proceed."
-        oncheckboxchanged={handleValueChange}>
-    </c-fsc_flow-checkbox>
-
     <!-- Left Icon -->
     <c-fsc_pick-icon
         label={inputValues.leftIconName.label}
@@ -218,6 +197,118 @@
         mode="combobox"
         oniconselection={handleRightIconChange}>
     </c-fsc_pick-icon>
+
+    <!-- Show New Record Action -->
+    <div class="slds-grid">
+        <div class="slds-col">
+            <template if:true={showFlowResource_NewRecord}>
+                <c-fsc_flow-combobox 
+                    name="placeholder" 
+                    value={inputValues.showNewRecordAction.value}
+                    builder-context-filter-type="Boolean"
+                    builder-context={_builderContext}
+                    label={inputValues.showNewRecordAction.label}
+                    field-level-help=""
+                    onvaluechanged={handleValueChange}
+                    automatic-output-variables={automaticOutputVariables}>
+                </c-fsc_flow-combobox>
+            </template>
+            <template if:false={showFlowResource_NewRecord}>
+                <lightning-radio-group 
+                    name="showNewRecordAction"
+                    label={inputValues.showNewRecordAction.label}
+                    options={showNewRecordActionOptions}
+                    value={inputValues.showNewRecordAction.value}
+                    type="button"
+                    onchange={handleValueChange}>
+                </lightning-radio-group>
+            </template>
+        </div>
+
+        <lightning-button-icon
+            value="showFlowResource_NewRecord"
+            class="slds-m-top_large"
+            icon-name="utility:system_and_global_variable"
+            variant="outline"
+            alternative-text="Info"
+            onclick={showFlowResourceHandlerNewRecord}>
+        </lightning-button-icon>
+    </div>
+
+    <!-- Required -->
+    <div class="slds-grid">
+        <div class="slds-col">
+            <template if:true={showFlowResource_Required}>
+                <c-fsc_flow-combobox 
+                    name="placeholder" 
+                    value={inputValues.required.value}
+                    builder-context-filter-type="Boolean"
+                    builder-context={_builderContext}
+                    label={inputValues.required.label}
+                    field-level-help=""
+                    onvaluechanged={handleValueChange}
+                    automatic-output-variables={automaticOutputVariables}>
+                </c-fsc_flow-combobox>
+            </template>
+            <template if:false={showFlowResource_Required}>
+                <lightning-radio-group 
+                    name="required"
+                    label={inputValues.required.label}
+                    options={requiredOptions}
+                    value={inputValues.required.value}
+                    type="button"
+                    onchange={handleValueChange}>
+                </lightning-radio-group>
+            </template>
+        </div>
+
+        <lightning-button-icon
+            value="showFlowResource_Required"
+            class="slds-m-top_large"
+            icon-name="utility:system_and_global_variable"
+            variant="outline"
+            alternative-text="Info"
+            onclick={showFlowResourceHandlerRequired}>
+        </lightning-button-icon>
+    </div>
+
+    <!-- Allow Multi Select -->
+    <div class="slds-grid">
+        <div class="slds-col">
+            <template if:true={showFlowResource_Multi}>
+                <c-fsc_flow-combobox 
+                    name="placeholder" 
+                    value={inputValues.allowMultiselect.value}
+                    builder-context-filter-type="Boolean"
+                    builder-context={_builderContext}
+                    label={inputValues.allowMultiselect.label}
+                    field-level-help=""
+                    onvaluechanged={handleValueChange}
+                    automatic-output-variables={automaticOutputVariables}>
+                </c-fsc_flow-combobox>
+            </template>
+            <template if:false={showFlowResource_Multi}>
+                <lightning-radio-group 
+                    name="allowMultiselect"
+                    label={inputValues.allowMultiselect.label}
+                    options={allowMultiselectOptions}
+                    value={inputValues.allowMultiselect.value}
+                    type="button"
+                    onchange={handleValueChange}>
+                </lightning-radio-group>
+            </template>
+        </div>
+
+        <lightning-button-icon
+            value="showFlowResource_Multi"
+            class="slds-m-top_large"
+            icon-name="utility:system_and_global_variable"
+            variant="outline"
+            alternative-text="Info"
+            onclick={showFlowResourceHandlerMulti}>
+        </lightning-button-icon>
+    </div> 
+
 
     <!-- If Multi Select False -->
     <template if:true={isMultiSelect}>
