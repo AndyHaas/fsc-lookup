@@ -217,26 +217,6 @@ export default class Fsc_lookupCPE extends LightningElement {
         ];
     }
 
-    updateFlowParam(name, value, ifEmpty=null, noEncode=false) {  
-        // Set parameter values to pass to Wizard Flow
-        console.log('updateFlowParam:', name, value);        
-        let currentValue = this.flowParams.find(param => param.name === name).value;
-        if (value != currentValue) {
-            if (noEncode) {
-                this.flowParams.find(param => param.name === name).value = value || ifEmpty;
-            } else { 
-                this.flowParams.find(param => param.name === name).value = (value) ? encodeURIComponent(value) : ifEmpty;
-            }
-        }
-    }
-
-    // These are values coming back from the Wizard Flow
-    handleFlowStatusChange(event) {
-        console.log('soqlQueryBuilder');
-        console.log('event.detail', event.detail);
-        this._query = event.detail;
-    }
-
     setFilterCriteria() {
         console.log('setFilterCriteria');
         // Close Modal
