@@ -192,6 +192,10 @@ export default class Fsc_lookupCPE extends LightningElement {
     //     ];
     // }
 
+    handleSoqlQueryChange(event) {
+        this._query = event.detail;
+    }
+
     // Using the SOQL Query Builder this function will parse the output
     // and set the fieldsToDisplay and whereClause input values
     setFilterCriteria() {

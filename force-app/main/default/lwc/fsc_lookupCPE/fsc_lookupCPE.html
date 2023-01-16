@@ -94,7 +94,7 @@
                 <div class="slds-modal__content slds-p-around_medium">
                     <!-- Access the LWC Directly -->
                     <c-soql-query-builder
-                        onchange={handleFlowStatusChange}
+                        onchange={handleSoqlQueryChange}
                         object-type={inputValues.objectName.value}
                         disable-object-type-selection=true
                     ></c-soql-query-builder>
@@ -199,7 +199,7 @@
     </c-fsc_pick-icon>
 
     <!-- Show New Record Action -->
-    <div class="slds-grid">
+    <div class="slds-grid slds-grid_vertical-align-center slds-m-vertical_medium">
         <div class="slds-col">
             <template if:true={showFlowResource_NewRecord}>
                 <c-fsc_flow-combobox 
@@ -247,7 +247,7 @@
 
         <lightning-button-icon
             value="showFlowResource_NewRecord"
-            class="slds-m-left_small slds-m-top_large"
+            class="slds-m-left_small"
             icon-name="utility:threedots"
             variant="outline"
             alternative-text="Info"
@@ -256,7 +256,7 @@
     </div>
 
     <!-- Required -->
-    <div class="slds-grid">
+    <div class="slds-grid slds-grid_vertical-align-center slds-m-vertical_medium">
         <div class="slds-col">
             <template if:true={showFlowResource_Required}>
                 <c-fsc_flow-combobox 
@@ -297,7 +297,7 @@
 
         <lightning-button-icon
             value="showFlowResource_Required"
-            class="slds-m-left_small slds-m-top_large"
+            class="slds-m-left_small"
             icon-name="utility:threedots"
             variant="outline"
             alternative-text="Info"
@@ -306,7 +306,7 @@
     </div>
 
     <!-- Allow Multi Select -->
-    <div class="slds-grid">
+    <div class="slds-grid slds-grid_vertical-align-center slds-m-vertical_medium">
         <div class="slds-col">
             <template if:true={showFlowResource_Multi}>
                 <c-fsc_flow-combobox 
@@ -347,7 +347,7 @@
 
         <lightning-button-icon
             value="showFlowResource_Multi"
-            class="slds-m-left_small slds-m-top_large"
+            class="slds-m-left_small"
             icon-name="utility:threedots"
             variant="outline"
             alternative-text="Info"
