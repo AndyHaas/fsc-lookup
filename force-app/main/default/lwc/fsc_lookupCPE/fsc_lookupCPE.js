@@ -43,7 +43,6 @@ const VALIDATEABLE_INPUTS = ['objectName', 'fieldsToDisplay'];
 
 
 export default class Fsc_lookupCPE extends LightningElement {
-    typeValue;
     _builderContext = {};
     _values = [];
     _typeMappings = [];
@@ -55,16 +54,16 @@ export default class Fsc_lookupCPE extends LightningElement {
     handleDynamicTypeMapping(event) { 
         console.log('handling a dynamic type mapping');
         console.log('event is ' + JSON.stringify(event));
-        let typeValue = event.detail.objectType;
+        let _typeValue = event.detail.objectType;
         const typeName = this._elementType === "Screen" ? 'T' : 'T__record'; 
-        console.log('typeValue is: ' + typeValue);
+        console.log('typeValue is: ' + _typeValue);
         const dynamicTypeMapping = new CustomEvent('configuration_editor_generic_type_mapping_changed', {
             composed: true,
             cancelable: false,
             bubbles: true,
             detail: {
                 typeName, 
-                typeValue, 
+                _typeValue, 
             }
         });
         this.dispatchEvent(dynamicTypeMapping);
@@ -179,14 +178,6 @@ export default class Fsc_lookupCPE extends LightningElement {
         this.initializeValues();
     }
 
-    @api get genericTypeMappings() {
-        return this._genericTypeMappings;
-    }
-    set genericTypeMappings(value) {
-        this._typeMappings = value;
-        this.initializeTypeMappings();
-    }
-
     get objectTypes() {
         return [
             {label: 'Standard and Custom', value: ''},
@@ -213,23 +204,18 @@ export default class Fsc_lookupCPE extends LightningElement {
     // Show New Record Action Options
     get showNewRecordActionOptions  () {
         return [
-            {label: 'Show', value: '$GlobalConstant.True'},
-            {label: 'Hide', value: '$GlobalConstant.False'}
+            {label: 'Show', value: 'true'},
+            {label: 'Hide', value: 'false'}
         ];
     }
 
     // Allow Multiselect Options
     get allowMultiselectOptions  () {
         return [
-            {label: 'Single', value: '$GlobalConstant.False'},
-            {label: 'Multiple', value: '$GlobalConstant.True'}
+            {label: 'Single', value: 'false'},
+            {label: 'Multiple', value: 'true'}
         ];
     }
-
-    // Input attributes for the Wizard Flow
-    @api flowParams = [
-        {name: 'objectName', type: 'String', value: null}
-    ]
 
     updateFlowParam(name, value, ifEmpty=null, noEncode=false) {  
         // Set parameter values to pass to Wizard Flow
@@ -340,7 +326,6 @@ export default class Fsc_lookupCPE extends LightningElement {
         if (this._values && this._values.length) {
             this._values.forEach(curInputParam => {
                 if (curInputParam.name && this.inputValues[curInputParam.name]) {
-                    console.log('in initializeValues: ' + curInputParam.name + ' = ' + curInputParam.value + ' type: ' + curInputParam.valueDataType);
                     // console.log('in initializeValues: '+ JSON.stringify(curInputParam));
 
                     
@@ -359,17 +344,10 @@ export default class Fsc_lookupCPE extends LightningElement {
                 if (curInputParam.name == 'allowMultiselect') {
                     this.isMultiSelect = convertBooleanFlowToReal(curInputParam.value) ? true : false;
                 }
+
+                console.log('in initializeValues: ' + curInputParam.name + ' = ' + curInputParam.value + ' type: ' + curInputParam.valueDataType);
             });
         }
-    }
-
-    initializeTypeMappings() {
-        this._typeMappings.forEach((typeMapping) => {
-            // console.log(JSON.stringify(typeMapping));
-            if (typeMapping.name && typeMapping.value) {
-                this.typeValue = typeMapping.value;
-            }
-        });
     }
 
     @track value = false;
