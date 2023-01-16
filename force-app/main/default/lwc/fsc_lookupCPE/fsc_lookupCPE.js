@@ -9,35 +9,9 @@ const DATA_TYPE = {
 
 const FLOW_EVENT_TYPE = {
     DELETE: 'configuration_editor_input_value_deleted',
-    CHANGE: 'configuration_editor_input_value_changed'
+    CHANGE: 'configuration_editor_input_value_changed',
+    DYNAMIC_MAPPING: 'configuration_editor_generic_type_mapping_changed'
 }
-
-/** 
- * when boolean balues are passed around in Flows, they're passed around as
- * these '$GlobalConstant' values
- * https://github.com/jkranz-rk/RecordTypePicker/commit/23c342a46eea96451b3897070da9ddf8b0b215ad
-*/
-const flowConstants = {
-    BOOLEAN : {
-        TRUE : '$GlobalConstant.True',
-        FALSE : '$GlobalConstant.False'
-    }
-};
-
-const convertBooleanFlowToReal = (boolVal) => {
-    switch (boolVal) {
-        case '$GlobalConstant.True':
-            return true;
-        case '$GlobalConstant.False':
-            return false;
-        default:
-            return false;
-    }
-};
-
-const convertBooleanRealToFlow = (boolVal) => {
-    return boolVal ? '$GlobalConstant.True' : '$GlobalConstant.False';
-};
 
 const VALIDATEABLE_INPUTS = ['objectName', 'fieldsToDisplay'];
 
@@ -48,27 +22,8 @@ export default class Fsc_lookupCPE extends LightningElement {
     _typeMappings = [];
     _query = '';
     _elementType;
-    _elementName;
-
-    // For sObject Type on the Lookup
-    handleDynamicTypeMapping(event) { 
-        console.log('handling a dynamic type mapping');
-        console.log('event is ' + JSON.stringify(event));
-        let _typeValue = event.detail.objectType;
-        const typeName = this._elementType === "Screen" ? 'T' : 'T__record'; 
-        console.log('typeValue is: ' + _typeValue);
-        const dynamicTypeMapping = new CustomEvent('configuration_editor_generic_type_mapping_changed', {
-            composed: true,
-            cancelable: false,
-            bubbles: true,
-            detail: {
-                typeName, 
-                _typeValue, 
-            }
-        });
-        this.dispatchEvent(dynamicTypeMapping);
-        this.dispatchFlowValueChangeEvent('objectName', event.detail.objectType, DATA_TYPE.STRING);
-    }    
+    _elementName; 
+    _typeValue;
 
     @api
     get elementInfo() {
@@ -83,6 +38,25 @@ export default class Fsc_lookupCPE extends LightningElement {
         }
     }
 
+    @api flowParams; // Deprecated
+
+    @api get genericTypeMappings() {
+        return this._genericTypeMappings;
+    }
+    set genericTypeMappings(value) {
+        this._typeMappings = value;
+        this.initializeTypeMappings();
+    }
+
+    initializeTypeMappings() {
+        this._typeMappings.forEach((typeMapping) => {
+            // console.log(JSON.stringify(typeMapping));
+            if (typeMapping.name && typeMapping.value) {
+                this._typeValue = typeMapping.value;
+            }
+        });
+    }
+
     showChildInputs = false;
     isMultiSelect = false;
     isFlowLoaded = false;
@@ -94,18 +68,19 @@ export default class Fsc_lookupCPE extends LightningElement {
 
     // Function to show/hide radio buttons to show flow combo box
     showFlowResourceHandlerRequired(event) {
-        this.showFlowResource_Required = !this.showFlowResource_Required;
+        this.showFlowResource_Required = !(this.showFlowResource_Required);
     }
     showFlowResourceHandlerNewRecord(event) {
-        this.showFlowResource_NewRecord = !this.showFlowResource_NewRecord;
+        this.showFlowResource_NewRecord = !(this.showFlowResource_NewRecord);
     }
     showFlowResourceHandlerMulti(event) {
-        this.showFlowResource_Multi = !this.showFlowResource_Multi;
+        this.showFlowResource_Multi = !(this.showFlowResource_Multi);
     }
 
 
+    // This function will allow the user to access the flow-combobox and select a flow resource
+    // Otherwise the user will use the SOQL Builder to select the fields to display and where clause
     @track showAdvanceConfiguration = false;
-
     showAdvanceConfigurationHandler(event) {
         console.log('showAdvanceConfigurationHandler', JSON.stringify(event.detail));
         // If SOQL Query is selected, false
@@ -193,35 +168,38 @@ export default class Fsc_lookupCPE extends LightningElement {
         ];
     }
 
-    // Required Options
-    get requiredOptions () {
-        return [
-            {label: 'True', value: '$GlobalConstant.True'},
-            {label: 'False', value: '$GlobalConstant.False'}
-        ];
-    } 
+    // // Required Options
+    // get requiredOptions () {
+    //     return [
+    //         {label: 'True', value: '$GlobalConstant.True'},
+    //         {label: 'False', value: '$GlobalConstant.False'}
+    //     ];
+    // } 
 
     // Show New Record Action Options
     get showNewRecordActionOptions  () {
         return [
-            {label: 'Show', value: 'true'},
-            {label: 'Hide', value: 'false'}
+            {label: 'Show', value: '$GlobalConstant.True'},
+            {label: 'Hide', value: '$GlobalConstant.False'}
         ];
     }
 
-    // Allow Multiselect Options
-    get allowMultiselectOptions  () {
-        return [
-            {label: 'Single', value: 'false'},
-            {label: 'Multiple', value: 'true'}
-        ];
-    }
+    // // Allow Multiselect Options
+    // get allowMultiselectOptions  () {
+    //     return [
+    //         {label: 'Single', value: '$GlobalConstant.False'},
+    //         {label: 'Multiple', value: '$GlobalConstant.True'}
+    //     ];
+    // }
 
+    // Using the SOQL Query Builder this function will parse the output
+    // and set the fieldsToDisplay and whereClause input values
     setFilterCriteria() {
         console.log('setFilterCriteria');
         // Close Modal
         this.closeModal();
 
+        // Example Output from SOQL Query Builder
         // this._query = SELECT Id, Name FROM Account WHERE Name LIKE '%a%' LIMIT 10;
 
         // If query contains LIMIT Remove everything after LIMIT
@@ -237,6 +215,7 @@ export default class Fsc_lookupCPE extends LightningElement {
         // Everything Between SELECT and FROM is the fields to display
         let fieldsToDisplay = this._query.substring(this._query.indexOf('SELECT') + 6, this._query.indexOf('FROM')).trim();
         console.log('fieldsToDisplay: ' + fieldsToDisplay);
+        // Example what fieldsToDisplay should look like
         // {"label":"Account Name","name":"Name","type":"STRING","sublabel":"Name","leftIcon":"utility:text","hidden":false}]
         // Go through each field and add the label, name, type, sublabel, leftIcon, and hidden
         let fields = [];
@@ -300,18 +279,13 @@ export default class Fsc_lookupCPE extends LightningElement {
         return validity;
     }
 
-
+    // When the component is rendered, initialize the values
     initializeValues(value) {
         console.log('in initializeValues: ' + JSON.stringify(value));
         if (this._values && this._values.length) {
             this._values.forEach(curInputParam => {
                 if (curInputParam.name && this.inputValues[curInputParam.name]) {
-                    // console.log('in initializeValues: '+ JSON.stringify(curInputParam));
-
-                    
-                    if (this.inputValues[curInputParam.name].valueDataType === 'Boolean') { // transpose '$GlobalConstant strings to Booleans
-                        this.inputValues[curInputParam.name].value = convertBooleanRealToFlow(this.inputValues[curInputParam.name].value);
-                    }
+                    console.log('in initializeValues: '+ JSON.stringify(curInputParam));
                     if (this.inputValues[curInputParam.name].serialized) {
                         this.inputValues[curInputParam.name].value = JSON.parse(curInputParam.value);
                     } else {
@@ -322,7 +296,7 @@ export default class Fsc_lookupCPE extends LightningElement {
 
                 // If input is allowMultiselect, then set the isMultiSelect flag
                 if (curInputParam.name == 'allowMultiselect') {
-                    this.isMultiSelect = convertBooleanFlowToReal(curInputParam.value) ? true : false;
+                    this.isMultiSelect = (curInputParam.value) ? true : false;
                 }
 
                 console.log('in initializeValues: ' + curInputParam.name + ' = ' + curInputParam.value + ' type: ' + curInputParam.valueDataType);
@@ -330,9 +304,7 @@ export default class Fsc_lookupCPE extends LightningElement {
         }
     }
 
-    @track value = false;
-    @track label = 'Select an Option';
-
+    // Handles all value changes
     handleValueChange(event) {
         console.log('in handleValueChange: ');
         if (event.detail && event.target) {
@@ -352,8 +324,8 @@ export default class Fsc_lookupCPE extends LightningElement {
             // If event.target.name is allowMultiselect and value is true then isMultiSelect is true
             // Used to disable/enable max and min fields
             if (event.target.name == 'allowMultiselect') {
-                console.log('in handleValueChange: allowMultiselect = ' + convertBooleanFlowToReal(newValue))
-                if (convertBooleanFlowToReal(newValue)) {
+                console.log('in handleValueChange: allowMultiselect = ' + (newValue))
+                if ((newValue)) {
                     this.isMultiSelect = true;
                 } else {
                     this.isMultiSelect = false;
@@ -365,7 +337,6 @@ export default class Fsc_lookupCPE extends LightningElement {
             }
 
             console.log('(NEW) in handleValueChange: ' + event.target.name + ' = ' + JSON.stringify(newValue));
-            newValue = (event.detail.newValueDataType === 'Boolean' ? convertBooleanFlowToReal(newValue) : newValue);
             this.dispatchFlowValueChangeEvent(event.target.name, newValue, event.detail.newValueDataType);
 
         } else if ( event.detail && event.currentTarget ) {
@@ -380,7 +351,6 @@ export default class Fsc_lookupCPE extends LightningElement {
             this.dispatchFlowValueChangeEvent(event.currentTarget.name, newValue, dataType);
         } else if (event.currentTarget?.name == 'allowMultiselect'){
             // Special case for allowMultiselect
-            // Set inputsValues.fieldsToDisplay.value to empty string
             if (event.detail.newValue) {
                 this.isMultiSelect = true;
             } else {
@@ -395,6 +365,7 @@ export default class Fsc_lookupCPE extends LightningElement {
         }
     }
 
+    // Speacial Use Case For Icons as we were not able to dynamically set the icon name
     handleIconChange(event) {
         this.dispatchFlowValueChangeEvent('iconName', event.detail);
     }
@@ -407,6 +378,7 @@ export default class Fsc_lookupCPE extends LightningElement {
         this.dispatchFlowValueChangeEvent('rightIconName', event.detail);
     }
 
+    // This is used to set the value of the input fields
     dispatchFlowValueChangeEvent(id, newValue, dataType = DATA_TYPE.STRING) {
         console.log('in dispatchFlowValueChangeEvent: ' + id, newValue, dataType);
         if (this.inputValues[id] && this.inputValues[id].serialized) {
@@ -425,4 +397,28 @@ export default class Fsc_lookupCPE extends LightningElement {
         });
         this.dispatchEvent(valueChangedEvent);
     }
+
+    // Special Use Case for Dynamic Type Mapping ( sObject )
+    handleDynamicTypeMapping(event) { 
+        console.log('handling a dynamic type mapping');
+        console.log('genericTypeMappings is ' + JSON.stringify(this._typeMappings));
+        console.log('event is ' + JSON.stringify(event));
+        let typeValue = event.detail.objectType;
+        const typeName = this._elementType === "Screen" ? 'T' : 'T__record'; 
+        console.log('typeValue is: ' + typeValue);
+        console.log('typeName is: ' + typeName);
+        const dynamicTypeMapping = new CustomEvent(FLOW_EVENT_TYPE.DYNAMIC_MAPPING, {
+            composed: true,
+            cancelable: false,
+            bubbles: true,
+            detail: {
+                typeName, 
+                typeValue, 
+            }
+        });
+        // Dynamic Type Mapping
+        this.dispatchEvent(dynamicTypeMapping);
+        // Set the objectName
+        this.dispatchFlowValueChangeEvent('objectName', typeValue, DATA_TYPE.STRING);
+    }   
 }

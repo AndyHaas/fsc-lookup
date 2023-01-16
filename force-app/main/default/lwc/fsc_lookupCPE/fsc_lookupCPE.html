@@ -214,14 +214,34 @@
                 </c-fsc_flow-combobox>
             </template>
             <template if:false={showFlowResource_NewRecord}>
-                <lightning-radio-group 
+                <!-- <lightning-radio-group 
                     name="showNewRecordAction"
                     label={inputValues.showNewRecordAction.label}
                     options={showNewRecordActionOptions}
                     value={inputValues.showNewRecordAction.value}
                     type="button"
                     onchange={handleValueChange}>
-                </lightning-radio-group>
+                </lightning-radio-group> -->
+                <!-- <lightning-input 
+                    type="checkbox" 
+                    label={inputValues.showNewRecordAction.label}
+                    name="showNewRecordAction"
+                    value={inputValues.showNewRecordAction.value}
+                    onchange={handleValueChange}
+                ></lightning-input> -->
+                <!-- <c-fsc_flow-radio-group
+                    name="showNewRecordAction"
+                    label={inputValues.showNewRecordAction.label}
+                    options={showNewRecordActionOptions}
+                    value={inputValues.showNewRecordAction.value}
+                    onvaluechange={handleValueChange}>
+                ></c-fsc_flow-radio-group> -->
+                <c-fsc_flow-checkbox
+                    name="showNewRecordAction"
+                    label={inputValues.showNewRecordAction.label}
+                    checked={inputValues.showNewRecordAction.value}
+                    oncheckboxchanged={handleValueChange}>
+                </c-fsc_flow-checkbox>
             </template>
         </div>
 
@@ -251,14 +271,27 @@
                 </c-fsc_flow-combobox>
             </template>
             <template if:false={showFlowResource_Required}>
-                <lightning-radio-group 
+                <!-- <lightning-radio-group 
                     name="required"
                     label={inputValues.required.label}
                     options={requiredOptions}
                     value={inputValues.required.value}
                     type="button"
                     onchange={handleValueChange}>
-                </lightning-radio-group>
+                </lightning-radio-group> -->
+                <!-- <lightning-input 
+                    type="checkbox" 
+                    label={inputValues.required.label}
+                    name="required"
+                    value={inputValues.required.value}
+                    onchange={handleValueChange}
+                    ></lightning-input> -->
+                    <c-fsc_flow-checkbox
+                        name="required"
+                        label={inputValues.required.label}
+                        checked={inputValues.required.value}
+                        oncheckboxchanged={handleValueChange}>
+                    </c-fsc_flow-checkbox>
             </template>
         </div>
 
@@ -288,14 +321,27 @@
                 </c-fsc_flow-combobox>
             </template>
             <template if:false={showFlowResource_Multi}>
-                <lightning-radio-group 
+                <!-- <lightning-radio-group 
                     name="allowMultiselect"
                     label={inputValues.allowMultiselect.label}
                     options={allowMultiselectOptions}
                     value={inputValues.allowMultiselect.value}
                     type="button"
                     onchange={handleValueChange}>
-                </lightning-radio-group>
+                </lightning-radio-group> -->
+                <!-- <lightning-input 
+                    type="checkbox" 
+                    label={inputValues.allowMultiselect.label}
+                    name="allowMultiselect"
+                    value={inputValues.allowMultiselect.value}
+                    onchange={handleValueChange}
+                ></lightning-input> -->
+                <c-fsc_flow-checkbox
+                    name="allowMultiselect"
+                    label={inputValues.allowMultiselect.label}
+                    checked={inputValues.allowMultiselect.value}
+                    oncheckboxchanged={handleValueChange}>
+                </c-fsc_flow-checkbox>
             </template>
         </div>
 
