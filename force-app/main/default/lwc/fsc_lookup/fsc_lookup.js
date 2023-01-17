@@ -128,15 +128,19 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
     }
 
     set selectedRecordIdsOutput(value) {
-        this._selectedRecordIdsOutput = value;
+        this._selectedRecordIdsOutput = value ? value : [];
         this.handleEventChanges('selectedRecordIdsOutput', value);
-
-        // Get the full details of the selected records
-        getRecordDetail({objectName: this.objectName, recordIds: value})
-            .then(result => {
-                this.selectedRecordsOutput = result;
-                this.handleEventChanges('selectedRecordsOutput', selectedRecordsOutput);
-            });
+        console.log('in set selectedRecordIdsOutput value: ' + value);
+        // If value is set then get the full record details
+        if (value) {
+            // Get the full details of the selected records
+            getRecordDetail({objectName: this.objectName, recordIds: value})
+                .then(result => {
+                    this.selectedRecordsOutput = result ? result : [];
+                    this.handleEventChanges('selectedRecordsOutput', this.selectedRecordsOutput);
+                    console.log('in set selectedRecordIdsOutput result: ' + JSON.stringify(result));
+                });
+        }
     }
 
     @api get numberOfRecordsOutput() {
@@ -157,15 +161,19 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
     }
 
     set selectedRecordIdOutput(value) {
-        this._selectedRecordIdOutput = value;
+        this._selectedRecordIdOutput = value ? value : '';
         this.handleEventChanges('selectedRecordIdOutput', value);
-
-        // Get the full details of the selected records
-        getRecordDetail({objectName: this.objectName, recordIds: value})
-            .then(result => {
-                this.selectedRecordOutput = result;
-                this.handleEventChanges('selectedRecordOutput', selectedRecordOutput);
-            });
+        console.log('in set selectedRecordIdOutput value: ' + value);
+        // If value is set then get the full record details
+        if (value) {
+            // Get the full details of the selected records
+            getRecordDetail({objectName: this.objectName, recordIds: value})
+                .then(result => {
+                    this.selectedRecordOutput = result ? result[0] : {};
+                    this.handleEventChanges('selectedRecordOutput', this.selectedRecordOutput);
+                    console.log('in set selectedRecordIdOutput result: ' + JSON.stringify(result));
+                });
+        }
     }
 
     @api 
@@ -529,7 +537,7 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
     }
 
     handleCustomAction(event) {
-        console.log('in handleCustomAction');
+        console.log('in handleCustomAction: ', JSON.stringify(event.detail));
         console.log(event.detail);
         if (event.detail === ACTIONS.NEW_RECORD.value) {
             this.showNewRecordModal = true;
