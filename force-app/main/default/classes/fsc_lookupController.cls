@@ -274,7 +274,17 @@ public without sharing class fsc_lookupController {
             recordIds = '\''+ recordIds +'\'';
         }
 
-        String query = 'SELECT FIELDS(STANDARD) FROM '+ objectName +' WHERE Id IN ('+ recordIds +')';
+        // Build the query from Schema.describeSObjects 
+        // From Schema.DescribeSObjectResult get the fields
+        String query = 'SELECT ';
+        SObjectType describeObject = Schema.getGlobalDescribe().get(objectName);
+        Map<String,Schema.SObjectField> mfields = describeObject.getDescribe().fields.getMap();
+        for (String field : mfields.keySet()) {
+            query += field +',';
+        }
+        query = query.substringBeforeLast(',');
+        query += ' FROM '+ objectName +' WHERE Id IN ('+ recordIds +')';
+        
         System.debug('query: '+ query);
         returnRecords = Database.query(query);
         return returnRecords;

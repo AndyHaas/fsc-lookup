@@ -229,25 +229,26 @@
                     value={inputValues.showNewRecordAction.value}
                     onchange={handleValueChange}
                 ></lightning-input> -->
-                <!-- <c-fsc_flow-radio-group
+                <c-fsc_flow-radio-group
                     name="showNewRecordAction"
                     label={inputValues.showNewRecordAction.label}
                     options={showNewRecordActionOptions}
-                    value={inputValues.showNewRecordAction.value}
+                    value={inputValues.showNewRecordAction.flowValue}
+                    type="button"
                     onvaluechange={handleValueChange}>
-                ></c-fsc_flow-radio-group> -->
-                <c-fsc_flow-checkbox
+                ></c-fsc_flow-radio-group>
+                <!-- <c-fsc_flow-checkbox
                     name="showNewRecordAction"
                     label={inputValues.showNewRecordAction.label}
                     checked={inputValues.showNewRecordAction.value}
                     oncheckboxchanged={handleValueChange}>
-                </c-fsc_flow-checkbox>
+                </c-fsc_flow-checkbox> -->
             </template>
         </div>
 
         <lightning-button-icon
             value="showFlowResource_NewRecord"
-            class="slds-m-left_small"
+            class="slds-m-left_small slds-m-top_large"
             icon-name="utility:threedots"
             variant="outline"
             alternative-text="Info"
@@ -271,14 +272,14 @@
                 </c-fsc_flow-combobox>
             </template>
             <template if:false={showFlowResource_Required}>
-                <!-- <lightning-radio-group 
+                <lightning-radio-group 
                     name="required"
                     label={inputValues.required.label}
                     options={requiredOptions}
-                    value={inputValues.required.value}
+                    value={inputValues.required.flowValue}
                     type="button"
                     onchange={handleValueChange}>
-                </lightning-radio-group> -->
+                </lightning-radio-group>
                 <!-- <lightning-input 
                     type="checkbox" 
                     label={inputValues.required.label}
@@ -286,18 +287,18 @@
                     value={inputValues.required.value}
                     onchange={handleValueChange}
                     ></lightning-input> -->
-                    <c-fsc_flow-checkbox
+                    <!-- <c-fsc_flow-checkbox
                         name="required"
                         label={inputValues.required.label}
                         checked={inputValues.required.value}
                         oncheckboxchanged={handleValueChange}>
-                    </c-fsc_flow-checkbox>
+                    </c-fsc_flow-checkbox> -->
             </template>
         </div>
 
         <lightning-button-icon
             value="showFlowResource_Required"
-            class="slds-m-left_small"
+            class="slds-m-left_small slds-m-top_large"
             icon-name="utility:threedots"
             variant="outline"
             alternative-text="Info"
@@ -321,14 +322,14 @@
                 </c-fsc_flow-combobox>
             </template>
             <template if:false={showFlowResource_Multi}>
-                <!-- <lightning-radio-group 
+                <lightning-radio-group 
                     name="allowMultiselect"
                     label={inputValues.allowMultiselect.label}
                     options={allowMultiselectOptions}
-                    value={inputValues.allowMultiselect.value}
+                    value={inputValues.allowMultiselect.flowValue}
                     type="button"
                     onchange={handleValueChange}>
-                </lightning-radio-group> -->
+                </lightning-radio-group>
                 <!-- <lightning-input 
                     type="checkbox" 
                     label={inputValues.allowMultiselect.label}
@@ -336,18 +337,18 @@
                     value={inputValues.allowMultiselect.value}
                     onchange={handleValueChange}
                 ></lightning-input> -->
-                <c-fsc_flow-checkbox
+                <!-- <c-fsc_flow-checkbox
                     name="allowMultiselect"
                     label={inputValues.allowMultiselect.label}
                     checked={inputValues.allowMultiselect.value}
                     oncheckboxchanged={handleValueChange}>
-                </c-fsc_flow-checkbox>
+                </c-fsc_flow-checkbox> -->
             </template>
         </div>
 
         <lightning-button-icon
             value="showFlowResource_Multi"
-            class="slds-m-left_small"
+            class="slds-m-left_small slds-m-top_large"
             icon-name="utility:threedots"
             variant="outline"
             alternative-text="Info"
