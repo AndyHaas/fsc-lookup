@@ -38,8 +38,6 @@ export default class Fsc_lookupCPE extends LightningElement {
         }
     }
 
-    @api flowParams; // Deprecated
-
     @api get genericTypeMappings() {
         return this._genericTypeMappings;
     }
