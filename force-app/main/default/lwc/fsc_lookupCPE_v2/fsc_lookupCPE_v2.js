@@ -228,52 +228,55 @@ export default class Fsc_lookupCPE extends LightningElement {
         // Example Output from SOQL Query Builder
         // this._query = SELECT Id, Name FROM Account WHERE Name LIKE '%a%' LIMIT 10;
 
-        // If query contains LIMIT Remove everything after LIMIT
-        if (this._query.includes('LIMIT')) {
-            this._query = this._query.substring(0, this._query.indexOf('LIMIT'));
-        }
+        // If query is set
+        if (this._query) {
+            // If query contains LIMIT Remove everything after LIMIT
+            if (this._query.includes('LIMIT')) {
+                this._query = this._query.substring(0, this._query.indexOf('LIMIT'));
+            }
 
-        // If query contains ORDER BY Remove everything after ORDER BY
-        if (this._query.includes('ORDER BY')) {
-            this._query = this._query.substring(0, this._query.indexOf('ORDER BY'));
-        }
+            // If query contains ORDER BY Remove everything after ORDER BY
+            if (this._query.includes('ORDER BY')) {
+                this._query = this._query.substring(0, this._query.indexOf('ORDER BY'));
+            }
 
-        // Everything Between SELECT and FROM is the fields to display
-        let fieldsToDisplay = this._query.substring(this._query.indexOf('SELECT') + 6, this._query.indexOf('FROM')).trim();
-        console.log('fieldsToDisplay: ' + fieldsToDisplay);
-        // Example what fieldsToDisplay should look like
-        // {"label":"Account Name","name":"Name","type":"STRING","sublabel":"Name","leftIcon":"utility:text","hidden":false}]
-        // Go through each field and add the label, name, type, sublabel, leftIcon, and hidden
-        let fields = [];
-        let fieldArray = fieldsToDisplay.split(',');
-        for (let i = 0; i < fieldArray.length; i++) {
-            let field = fieldArray[i].trim();
-            let fieldLabel = field;
-            let fieldName = field;
-            let fieldType = 'STRING';
-            let fieldSublabel = field;
-            let fieldLeftIcon = 'utility:text';
-            let fieldHidden = false;
-            fields.push({
-                label: fieldLabel,
-                name: fieldName,
-                type: fieldType,
-                sublabel: fieldSublabel,
-                leftIcon: fieldLeftIcon,
-                hidden: fieldHidden
-            });
-        }
-        console.log('fields: ' + JSON.stringify(fields));
-        this.inputValues.fieldsToDisplay.value = fields;
-        this.dispatchFlowValueChangeEvent('fieldsToDisplay', fields, DATA_TYPE.STRING);
+            // Everything Between SELECT and FROM is the fields to display
+            let fieldsToDisplay = this._query.substring(this._query.indexOf('SELECT') + 6, this._query.indexOf('FROM')).trim();
+            console.log('fieldsToDisplay: ' + fieldsToDisplay);
+            // Example what fieldsToDisplay should look like
+            // {"label":"Account Name","name":"Name","type":"STRING","sublabel":"Name","leftIcon":"utility:text","hidden":false}]
+            // Go through each field and add the label, name, type, sublabel, leftIcon, and hidden
+            let fields = [];
+            let fieldArray = fieldsToDisplay.split(',');
+            for (let i = 0; i < fieldArray.length; i++) {
+                let field = fieldArray[i].trim();
+                let fieldLabel = field;
+                let fieldName = field;
+                let fieldType = 'STRING';
+                let fieldSublabel = field;
+                let fieldLeftIcon = 'utility:text';
+                let fieldHidden = false;
+                fields.push({
+                    label: fieldLabel,
+                    name: fieldName,
+                    type: fieldType,
+                    sublabel: fieldSublabel,
+                    leftIcon: fieldLeftIcon,
+                    hidden: fieldHidden
+                });
+            }
+            console.log('fields: ' + JSON.stringify(fields));
+            this.inputValues.fieldsToDisplay.value = fields;
+            this.dispatchFlowValueChangeEvent('fieldsToDisplay', fields, DATA_TYPE.STRING);
 
-        // Everything After WHERE is the filter criteria
-        // Check if WHERE is in the query
-        if (this._query.includes('WHERE')) {
-            let whereClause = this._query.substring(this._query.indexOf('WHERE') + 5).trim();
-            console.log('whereClause: ' + whereClause);
-            this.inputValues.whereClause.value = whereClause;
-            this.dispatchFlowValueChangeEvent('whereClause', whereClause, DATA_TYPE.STRING);
+            // Everything After WHERE is the filter criteria
+            // Check if WHERE is in the query
+            if (this._query.includes('WHERE')) {
+                let whereClause = this._query.substring(this._query.indexOf('WHERE') + 5).trim();
+                console.log('whereClause: ' + whereClause);
+                this.inputValues.whereClause.value = whereClause;
+                this.dispatchFlowValueChangeEvent('whereClause', whereClause, DATA_TYPE.STRING);
+            }
         }
     }
 
