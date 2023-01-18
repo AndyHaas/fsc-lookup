@@ -98,12 +98,10 @@ export default class Fsc_lookupCPE extends LightningElement {
     }
 
     convertValueToType(value) {
-        // Value starts with $GlobalConstant
+        // Value contains with $GlobalConstant
         // Type is Boolean
-        if (value.startsWith('$GlobalConstant')) {
+        if (value === '$GlobalConstant.True' || value === '$GlobalConstant.False') {
             return DATA_TYPE.BOOLEAN;
-        } else {
-            return DATA_TYPE.STRING;
         }
     }
 
