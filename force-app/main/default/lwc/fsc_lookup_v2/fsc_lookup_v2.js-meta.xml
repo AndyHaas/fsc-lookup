@@ -7,7 +7,7 @@
         <target>lightning__FlowScreen</target>
     </targets>
     <targetConfigs>
-        <targetConfig targets="lightning__FlowScreen" configurationEditor="c-fsc_lookup-C-P-E">
+        <targetConfig targets="lightning__FlowScreen" configurationEditor="c-fsc_lookup-C-P-E_v2">
             <propertyType name="T" extends="SObject" label="Object Name" description="Select the API Name of the SObject"/>
             <property name="objectName" label="Object Name" type="String" required="true" role="inputOnly"/>
             <property name="label" label="Label" type="String" default="Select Record" role="inputOnly"/>
