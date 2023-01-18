@@ -20,10 +20,40 @@ export default class Fsc_lookupCPE extends LightningElement {
     _builderContext = {};
     _values = [];
     _query = '';
+    isMultiSelect = false;    
     _elementType;
     _elementName; 
     _typeValue;
-    isMultiSelect = false;
+
+    @api
+    get elementInfo() {
+        return this._elementInfo;
+    }
+
+    set elementInfo(info) {
+        this._elementInfo = info || {};
+        if (this._elementInfo) {
+            this._elementName = this._elementInfo.apiName;
+            this._elementType = this._elementInfo.type;
+        }
+    }
+
+    @api get genericTypeMappings() {
+        return this._genericTypeMappings;
+    }
+    set genericTypeMappings(value) {
+        this._typeMappings = value;
+        this.initializeTypeMappings();
+    }
+
+    initializeTypeMappings() {
+        this._typeMappings.forEach((typeMapping) => {
+            // console.log(JSON.stringify(typeMapping));
+            if (typeMapping.name && typeMapping.value) {
+                this._typeValue = typeMapping.value;
+            }
+        });
+    }
 
     // Variables to show/hide radio buttons to show flow combo box
     showFlowResource_Required = false;
