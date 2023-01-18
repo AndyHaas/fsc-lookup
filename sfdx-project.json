@@ -24,6 +24,31 @@
           "subscriberPackageVersionId": "04t5e000000NqxCAAS"
         }
       ]
+    },
+    {
+      "path": "force-app",
+      "package": "fsc_Lookup",
+      "versionName": "ver 1",
+      "versionNumber": "1.0.0.NEXT",
+      "default": false,
+      "versionDescription": "",
+      "dependencies": [
+        {
+          "subscriberPackageVersionId": "04t5e0000012DeJAAU"
+        },
+        {
+          "subscriberPackageVersionId": "04t8b000000mKnoAAE"
+        },
+        {
+          "subscriberPackageVersionId": "04t5G000003rUvVQAU"
+        },
+        {
+          "subscriberPackageVersionId": "04tf4000004PtguAAC"
+        },
+        {
+          "subscriberPackageVersionId": "04t5e000000NqxCAAS"
+        }
+      ]
     }
   ],
   "name": "FSC_Lookup",
@@ -33,9 +58,10 @@
   "packageAliases": {
     "MC_Lookup": "0Ho5e0000010wNhCAI",
     "MC_Combobox": "04t5e0000012DeJAAU",
-    "SOQLBuildAndExecute@1.3.1-0": "04tf4000004PtguAAC",
+    "SOQLBuildAndExecute@1.3.8-0": "04t5G0000043xtAQAQ",
     "FlowActionsBasePack@3.6.0-0": "04t8b000000mKnoAAE",
     "FlowScreenComponentsBasePack@3.0.6-0": "04t5G000003rUvVQAU",
-    "fsc_FlowRadioGroup": "04t5e000000NqxCAAS"
+    "fsc_FlowRadioGroup": "04t5e000000NqxCAAS",
+    "fsc_Lookup": "0Ho5e000000wkSKCAY"
   }
 }
