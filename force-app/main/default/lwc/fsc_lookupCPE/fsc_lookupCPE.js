@@ -19,47 +19,11 @@ const VALIDATEABLE_INPUTS = ['objectName', 'fieldsToDisplay'];
 export default class Fsc_lookupCPE extends LightningElement {
     _builderContext = {};
     _values = [];
-    _typeMappings = [];
     _query = '';
     _elementType;
     _elementName; 
     _typeValue;
-
-    @api
-    get elementInfo() {
-        return this._elementInfo;
-    }
-
-    set elementInfo(info) {
-        this._elementInfo = info || {};
-        if (this._elementInfo) {
-            this._elementName = this._elementInfo.apiName;
-            this._elementType = this._elementInfo.type;
-        }
-    }
-
-    @api flowParams; // Deprecated
-
-    @api get genericTypeMappings() {
-        return this._genericTypeMappings;
-    }
-    set genericTypeMappings(value) {
-        this._typeMappings = value;
-        this.initializeTypeMappings();
-    }
-
-    initializeTypeMappings() {
-        this._typeMappings.forEach((typeMapping) => {
-            // console.log(JSON.stringify(typeMapping));
-            if (typeMapping.name && typeMapping.value) {
-                this._typeValue = typeMapping.value;
-            }
-        });
-    }
-
-    showChildInputs = false;
     isMultiSelect = false;
-    isFlowLoaded = false;
 
     // Variables to show/hide radio buttons to show flow combo box
     showFlowResource_Required = false;
@@ -438,7 +402,6 @@ export default class Fsc_lookupCPE extends LightningElement {
     // Special Use Case for Dynamic Type Mapping ( sObject )
     handleDynamicTypeMapping(event) { 
         console.log('handling a dynamic type mapping');
-        console.log('genericTypeMappings is ' + JSON.stringify(this._typeMappings));
         console.log('event is ' + JSON.stringify(event));
         let typeValue = event.detail.objectType;
         const typeName = this._elementType === "Screen" ? 'T' : 'T__record'; 
