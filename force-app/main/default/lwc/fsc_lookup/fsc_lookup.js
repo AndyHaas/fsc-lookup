@@ -133,6 +133,10 @@ export default class Fsc_lookup extends NavigationMixin(LightningElement) {
         console.log('in set selectedRecordIdsOutput value: ' + value);
         // If value is set then get the full record details
         if (value) {
+            // Convert value to string if it is an array
+            if (Array.isArray(value)) {
+                value = value.toString();
+            }
             // Get the full details of the selected records
             getRecordDetail({objectName: this.objectName, recordIds: value})
                 .then(result => {
